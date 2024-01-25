@@ -4705,11 +4705,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Kainan\\OneDrive - Jala University\\Documentos\\Codes\\C#\\SpaceInvaders\\SpaceInvaders\\SpaceInvaders.csproj",
+      "projectUniqueName": "C:\\Users\\Kainan\\Desktop\\SpaceInvaders\\SpaceInvaders.csproj",
       "projectName": "SpaceInvaders",
-      "projectPath": "C:\\Users\\Kainan\\OneDrive - Jala University\\Documentos\\Codes\\C#\\SpaceInvaders\\SpaceInvaders\\SpaceInvaders.csproj",
+      "projectPath": "C:\\Users\\Kainan\\Desktop\\SpaceInvaders\\SpaceInvaders.csproj",
       "packagesPath": "C:\\Users\\Kainan\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Kainan\\OneDrive - Jala University\\Documentos\\Codes\\C#\\SpaceInvaders\\SpaceInvaders\\obj\\",
+      "outputPath": "C:\\Users\\Kainan\\Desktop\\SpaceInvaders\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Kainan\\AppData\\Roaming\\NuGet\\NuGet.Config"
