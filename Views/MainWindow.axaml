@@ -8,7 +8,6 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="SpaceInvadersMVVM">
-
 	<Canvas Name="GameCanvas">
 		<Rectangle Name="SpaceShip" Width="50" Height="50" Fill="Blue" Canvas.Left="375" Canvas.Bottom="10"/>
 	</Canvas>
