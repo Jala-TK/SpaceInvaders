@@ -7,7 +7,7 @@ public class Player
 
     public Player()
     {
-        X = 375;
-        Y = 550;
+        X = 350;
+        Y = 500;
     }
 }

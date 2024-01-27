@@ -9,21 +9,14 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="SpaceInvadersMVVM"
         Width="800" Height="600">
-        
-        <!-- 	<Canvas Name="GameCanvas">
-		<Rectangle Name="SpaceShip" Width="50" Height="50" Fill="Blue" Canvas.Left="375" Canvas.Bottom="10"/>
-	</Canvas> -->
 
         <Canvas Name="GameCanvas">
                 <Image x:Name="Background" Width="800" Height="600" Source="../Assets/Stars.gif"/>
-                <Image Name="SpaceShip" Width="100" Height="100" Canvas.Left="375" Canvas.Bottom="10" Source="../Assets/player.gif"/>
-                <Image x:Name="enemy" IsVisible="False" Source="../Assets/ovni.png"/>
+                <Image Name="SpaceShip" Width="100" Height="100" Canvas.Left="350" Canvas.Top="500" Source="../Assets/player.gif"/>
+                <Image x:Name="enemy" IsVisible="False" Source="../Assets/invader1.gif"/>
                 <Image x:Name="bala" IsVisible="False" Source="../Assets/bullet.gif"/>
-                <TextBlock Canvas.Left="0" Canvas.Bottom="0">Bottom 0</TextBlock>
-                <TextBlock Canvas.Left="0" Canvas.Top="0">Top 0</TextBlock>
-                <TextBlock Canvas.Left="0" Canvas.Top="50">Top 50</TextBlock>
-                <TextBlock Canvas.Left="0" Canvas.Bottom="50">Bottom 50</TextBlock>
-                <TextBlock Canvas.Left="0" Canvas.Top="550">Top 550</TextBlock>
+
+                <TextBlock Canvas.Left="690" Canvas.Bottom="0" Text="{Binding Score}"/>
         </Canvas>
 
 </Window>
