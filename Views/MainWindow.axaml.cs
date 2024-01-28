@@ -7,6 +7,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using SpaceInvaders.Models;
 using SpaceInvadersMVVM.ViewModels;
@@ -29,6 +30,7 @@ public partial class MainWindow : Window
     private List<Image> _bullets;
     private DispatcherTimer _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
+    private DispatcherTimer _enemyBulletTimer;
 
     public MainWindow()
     {
@@ -43,6 +45,10 @@ public partial class MainWindow : Window
         _enemies = new List<Image>();
         _bullets = new List<Image>();
         _player = new Player();
+        _enemyBulletTimer = new DispatcherTimer();
+        _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(1500); // Defina o intervalo desejado para o tiro dos inimigos
+        _enemyBulletTimer.Tick += EnemyShoot;
+        _enemyBulletTimer.Start();
 
         int rows = 5;
         int cols = 11;
@@ -251,6 +257,23 @@ public partial class MainWindow : Window
         return rect1.Intersects(rect2);
     }
 
+    private void EnemyShoot(object sender, EventArgs e)
+    {
+        Random random = new Random();
+
+        // Escolha um inimigo aleatório para atirar
+        if (_enemies.Count > 0)
+        {
+            int randomEnemyIndex = random.Next(_enemies.Count);
+            Image randomEnemy = _enemies[randomEnemyIndex];
+
+            double bulletX = Canvas.GetLeft(randomEnemy) + (randomEnemy.Width / 2) - 10;
+            double bulletY = Canvas.GetTop(randomEnemy) + randomEnemy.Height;
+
+            CreateBullet(bulletX, bulletY, 3, false);
+            CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer);
+        }
+    }
 
 
 }
