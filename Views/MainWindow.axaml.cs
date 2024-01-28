@@ -9,6 +9,8 @@ using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using SpaceInvaders.Models;
+using SpaceInvadersMVVM.ViewModels;
+
 
 namespace SpaceInvadersMVVM.Views;
 
@@ -27,7 +29,7 @@ public partial class MainWindow : Window
     private List<Image> _bullets;
     private DispatcherTimer _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
-    
+
     public MainWindow()
     {
         InitializeComponent();
@@ -98,7 +100,7 @@ public partial class MainWindow : Window
                 {
                     _player.X += _playerSpeed;
                 }
-                break; 
+                break;
             case Key.Space:
                 if (canShoot)
                 {
@@ -147,7 +149,7 @@ public partial class MainWindow : Window
     }
 
 
-    
+
     private void CreateBullet(double x, double y, double speed, bool isPlayerBullet)
     {
         var bullet = new Image
@@ -171,7 +173,7 @@ public partial class MainWindow : Window
             double bulletY = Canvas.GetTop(bullet);
 
             if (isPlayerBullet)
-            {   
+            {
                 bulletY -= speed;
             }
             else
@@ -213,6 +215,7 @@ public partial class MainWindow : Window
                     _bullets.Remove(bullet);
                     bulletTimer.Stop(); // Parar o timer da bala
                     canShoot = true;
+                    ((MainWindowViewModel)this.DataContext).UpdateScore(10);
                     break;
                 }
             }
@@ -239,7 +242,7 @@ public partial class MainWindow : Window
             canShoot = true;
         }
     }
-    
+
     private bool CheckCollision(Image element1, Image element2)
     {
         Rect rect1 = new Rect(Canvas.GetLeft(element1), Canvas.GetTop(element1), element1.Width, element1.Height);
@@ -247,7 +250,7 @@ public partial class MainWindow : Window
 
         return rect1.Intersects(rect2);
     }
-    
+
 
 
 }
