@@ -234,6 +234,10 @@ public partial class MainWindow : Window
             Height = 35,
             Source = _bullet.Source,
         };
+        
+        if(!isPlayerBullet){
+            bullet.RenderTransform = new RotateTransform(180);
+        }
 
         Canvas.SetLeft(bullet, x);
         Canvas.SetTop(bullet, y);
