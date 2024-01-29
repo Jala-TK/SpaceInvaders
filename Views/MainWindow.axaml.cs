@@ -1,9 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Avalonia.Media.Imaging;
 using SpaceInvaders.Models;
@@ -39,10 +43,10 @@ public partial class MainWindow : Window
     private List<Image> _bullets;
     private DispatcherTimer _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
+    private DispatcherTimer _enemyBulletTimer;
     private WaveOutEvent _waveOut;
     private WaveFileReader _explosion;
 
-    
     public MainWindow()
     {
         InitializeComponent();
@@ -69,6 +73,10 @@ public partial class MainWindow : Window
         _player = new Player();
         _waveOut = new WaveOutEvent();
         // _explosion = new WaveFileReader("Assets/2.wav");
+        _enemyBulletTimer = new DispatcherTimer();
+        _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(1500); // Defina o intervalo desejado para o tiro dos inimigos
+        _enemyBulletTimer.Tick += EnemyShoot;
+        _enemyBulletTimer.Start();
 
         int numShields = 4;
         double shieldMargin = 80;
@@ -134,7 +142,6 @@ public partial class MainWindow : Window
     {
         AvaloniaXamlLoader.Load(this);
     }
-    
 
     private void MoveSpaceShip(object? sender, KeyEventArgs e)
     {
@@ -349,8 +356,6 @@ public partial class MainWindow : Window
             bulletTimer.Stop(); // Parar o timer da bala
             canShoot = true;
         }
-        
-        
     }
 
     private bool CheckCollision(Image element1, Image element2)
@@ -361,6 +366,23 @@ public partial class MainWindow : Window
         return rect1.Intersects(rect2);
     }
 
+    private void EnemyShoot(object sender, EventArgs e)
+    {
+        Random random = new Random();
+
+        // Escolha um inimigo aleatório para atirar
+        if (_enemies.Count > 0)
+        {
+            int randomEnemyIndex = random.Next(_enemies.Count);
+            Image randomEnemy = _enemies[randomEnemyIndex].Sprite;
+
+            double bulletX = Canvas.GetLeft(randomEnemy) + (randomEnemy.Width / 2) - 10;
+            double bulletY = Canvas.GetTop(randomEnemy) + randomEnemy.Height;
+
+            CreateBullet(bulletX, bulletY, 3, false);
+            CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer);
+        }
+    }
 
 
 }
