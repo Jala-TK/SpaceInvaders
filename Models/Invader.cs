@@ -1,16 +1,25 @@
-﻿namespace SpaceInvaders.Models;
+﻿using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 
-public class Invader
+namespace SpaceInvaders.Models
 {
-    public double X { get; set; }
-    public double Y { get; set; }
-    public int Col { get; set; }
-    public int Row { get; set; }
-    public Invader(int col, int row, double x, double y)
+    public class Invader
     {
-        X = x;
-        Y = y;
-        Col = col;
-        Row = row;
+        public int Col { get; set; }
+        public int Row { get; set; }
+        public Image Sprite { get; set; }  // Corrigindo o nome da propriedade
+
+        public Invader(int col, int row)
+        {
+            Col = col;
+            Row = row;
+
+            Sprite = new Image
+            {
+                Width = 40,
+                Height = 40,
+            };
+        }
+        
     }
 }
