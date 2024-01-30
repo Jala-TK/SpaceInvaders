@@ -20,7 +20,7 @@ public partial class MainWindow : Window
     private readonly Canvas? _gameCanvas;
     private Player _player;
     private bool _canShoot = true;
-    private double _moveSpeed = 2.0;
+    private double _moveSpeed = 5.0;
     private List<Invader> _enemies = [];
     private List<Barrier> _shields = [];
     private List<Bullet> _bullets = [];
@@ -40,6 +40,9 @@ public partial class MainWindow : Window
 #endif
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
+        
+        PlayAudio("backgroundmusic.mpeg", 0.1f, false);
+
         
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
         _player = _viewModel.Player;
@@ -109,9 +112,14 @@ public partial class MainWindow : Window
 
         _timer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(100)
+            Interval = TimeSpan.FromMilliseconds(500)
         };
-        _timer.Tick += MoveEnemies;
+        _timer.Tick += (_, _) =>
+        {
+            PlayAudio("6.wav", 0.1f, false);
+            MoveEnemies();
+            PlayAudio("6.wav", 0.1f, false);
+        };
         _timer.Start();
 
     }
@@ -152,8 +160,9 @@ public partial class MainWindow : Window
         Canvas.SetTop(_player.Sprite!, _player.Y);
     }
 
-    private void MoveEnemies(object? sender, EventArgs e)
+    private void MoveEnemies()
     {
+        PlayAudio("5.wav", 0.1f, false);
         var shouldMoveDown = false;
 
         foreach (var enemy in _enemies)
@@ -212,7 +221,12 @@ public partial class MainWindow : Window
 
         
         if(!isPlayerBullet){
+            PlayAudio("1.wav", 0.1f, false);
             bullet.Sprite.RenderTransform = new RotateTransform(180);
+        }
+        else
+        {
+            PlayAudio("3.wav", 0.1f, false);
         }
 
         Canvas.SetLeft(bullet.Sprite, x);
@@ -272,6 +286,7 @@ public partial class MainWindow : Window
                     // Remover inimigo e bala
                     // _waveOut.Init(_explosion);
                     // _waveOut.Play();
+                    PlayAudio("2.wav", 0.1f, false);
                     _viewModel.UpdateScore(10);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
@@ -279,7 +294,10 @@ public partial class MainWindow : Window
                     _gameCanvas.Children.Remove(bullet.Sprite!);
                     _bullets.Remove(bullet);
                     bulletTimer.Stop(); // Parar o timer da bala
-                    _canShoot = true;
+                    if (isPlayerBullet)
+                    {
+                        _canShoot = true;
+                    }
                     break;
                 }
             }
@@ -293,8 +311,10 @@ public partial class MainWindow : Window
                 _gameCanvas!.Children.Remove(bullet.Sprite!);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
-                _canShoot = true;
-            }
+                if (isPlayerBullet)
+                {
+                    _canShoot = true;
+                }            }
         }
         
         // Verificar colisão com barreiras
@@ -306,7 +326,10 @@ public partial class MainWindow : Window
                 _gameCanvas!.Children.Remove(bullet.Sprite!);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
-                _canShoot = true;
+                if (isPlayerBullet)
+                {
+                    _canShoot = true;
+                }
                 switch (shield.Life)
                 {
                     case > 80:
@@ -339,8 +362,10 @@ public partial class MainWindow : Window
             _gameCanvas!.Children.Remove(bullet.Sprite!);
             _bullets.Remove(bullet);
             bulletTimer.Stop(); // Parar o timer da bala
-            _canShoot = true;
-        }
+            if (isPlayerBullet)
+            {
+                _canShoot = true;
+            }        }
     }
 
     private bool CheckCollision(Image element1, Image element2)

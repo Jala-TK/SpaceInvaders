@@ -15,8 +15,10 @@
         </Window.DataContext>
 
 
-        <Canvas Name="GameCanvas">
-                <Image x:Name="Background" Width="800" Height="600" Source="/Assets/Sprites/Stars.gif"/>
+        <Canvas Name="GameCanvas" Height="600" Width="800">
+                <Canvas.Background>
+                        <ImageBrush Source="/Assets/Sprites/Stars.gif"/>
+                </Canvas.Background>
                 <Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
                 
                 <Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/invader1.gif"/>

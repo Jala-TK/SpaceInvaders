@@ -23,4 +23,11 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Views\MainWindowSound.axaml.cs">
+      <DependentUpon>MainWindow.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
