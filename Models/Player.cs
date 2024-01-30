@@ -1,13 +1,7 @@
-﻿namespace SpaceInvaders.Models;
+﻿namespace SpaceInvadersMVVM.Models;
 
 public class Player
 {
-    public double X { get; set; }
-    public double Y { get; set; }
-
-    public Player()
-    {
-        X = 350;
-        Y = 500;
-    }
+    public double X { get; set; } = 350;
+    public double Y { get; set; } = 500;
 }

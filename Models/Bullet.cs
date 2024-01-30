@@ -1,4 +1,4 @@
-﻿namespace SpaceInvaders.Models;
+﻿namespace SpaceInvadersMVVM.Models;
 
 public class Bullet
 {

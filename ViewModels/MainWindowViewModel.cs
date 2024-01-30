@@ -4,8 +4,7 @@ namespace SpaceInvadersMVVM.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    public string Greeting => "Welcome to Avalonia!";
-    private int _score = 0;
+    private int _score;
     public string Score => "Score: " + _score;
 
     public void UpdateScore(int points)
