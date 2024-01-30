@@ -10,9 +10,14 @@
         Title="SpaceInvadersMVVM"
         Width="800" Height="600">
 
+        <Window.DataContext>
+                <vm:MainWindowViewModel />
+        </Window.DataContext>
+
+
         <Canvas Name="GameCanvas">
                 <Image x:Name="Background" Width="800" Height="600" Source="/Assets/Sprites/Stars.gif"/>
-                <Image Name="SpaceShip" Width="100" Height="100" Canvas.Left="350" Canvas.Top="500" Source="/Assets/Sprites/player.gif"/>
+                <Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
                 
                 <Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/invader1.gif"/>
                 <Image x:Name="Enemy1A" IsVisible="False" Source="/Assets/Sprites/invader1c.gif"/>
@@ -33,7 +38,7 @@
                 <Image x:Name="Boss" IsVisible="False" Source="/Assets/Sprites/saucer0.gif"/>
                 <Image x:Name="Bala" IsVisible="False" Source="/Assets/Sprites/bullet.gif"/>
 
-                <TextBlock Canvas.Left="690" Canvas.Bottom="0" Text="{Binding Score}"/>
+                <TextBlock x:Name="Score" Canvas.Left="690" Canvas.Bottom="0" Text="{Binding Score}"/>
         </Canvas>
 
 </Window>

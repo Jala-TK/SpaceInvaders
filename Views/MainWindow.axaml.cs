@@ -18,17 +18,17 @@ public partial class MainWindow : Window
 
 {
     private readonly Canvas? _gameCanvas;
-    private Image? _spaceShip;
     private Player _player;
     private bool _canShoot = true;
     private double _moveSpeed = 2.0;
-    private double _playerSpeed = 5.0;
-    private List<Invader> _enemies;
-    private List<Barrier> _shields;
-    private List<Image> _bullets;
+    private List<Invader> _enemies = [];
+    private List<Barrier> _shields = [];
+    private List<Bullet> _bullets = [];
     private DispatcherTimer _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
     private DispatcherTimer _enemyBulletTimer;
+    private readonly MainWindowViewModel _viewModel;
+
     // private WaveOutEvent _waveOut;
     // private WaveFileReader _explosion;
 
@@ -38,12 +38,15 @@ public partial class MainWindow : Window
 #if DEBUG
         this.AttachDevTools();
 #endif
+        _viewModel = new MainWindowViewModel();
+        DataContext = _viewModel;
+        
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
-        _spaceShip = this.FindControl<Image>("SpaceShip");
-        _enemies = new List<Invader>();
-        _bullets = new List<Image>();
-        _shields = new List<Barrier>();
-        _player = new Player();
+        _player = _viewModel.Player;
+        _player.Sprite!.Source = this.FindControl<Image>("SpaceShip")!.Source;
+        _gameCanvas!.Children.Add(_player.Sprite);
+        MoveSpaceShip();
+
         // _waveOut = new WaveOutEvent();
         // _explosion = new WaveFileReader("Assets/2.wav");
         _enemyBulletTimer = new DispatcherTimer();
@@ -102,7 +105,7 @@ public partial class MainWindow : Window
                 _enemies.Add(enemy);
             }
         }
-        KeyDown += MoveSpaceShip;
+        KeyDown += OnKeyPressed;
 
         _timer = new DispatcherTimer
         {
@@ -118,28 +121,23 @@ public partial class MainWindow : Window
         AvaloniaXamlLoader.Load(this);
     }
 
-    private void MoveSpaceShip(object? sender, KeyEventArgs e)
+    private void OnKeyPressed(object? sender, KeyEventArgs e)
     {
-        _player.X = Canvas.GetLeft(_spaceShip!);
-
         switch (e.Key)
         {
             case Key.Left or Key.A:
-                if (_player.X - _playerSpeed >= 0)
-                {
-                    _player.X -= _playerSpeed;
-                }
+                _viewModel.MoveLeftCommand.Execute().Subscribe();
+                MoveSpaceShip();
                 break;
             case Key.Right or Key.D:
-                if (_player.X + _playerSpeed <= _gameCanvas!.Bounds.Width - _spaceShip!.Width)
-                {
-                    _player.X += _playerSpeed;
-                }
+                _viewModel.MoveRightCommand.Execute().Subscribe();
+                MoveSpaceShip();
                 break;
             case Key.Space:
+                _viewModel.ShootCommand.Execute().Subscribe();
                 if (_canShoot)
                 {
-                    var bulletX = _player.X + (_spaceShip!.Width / 2) - 10;
+                    var bulletX = _player.X + (_player.Sprite!.Width / 2) - 10;
                     var bulletY = _player.Y;
                     CreateBullet(bulletX, bulletY, 3, true);
                     _canShoot = false; // Impede que o jogador atire novamente imediatamente
@@ -147,8 +145,11 @@ public partial class MainWindow : Window
                 break;
         }
 
-        Canvas.SetLeft(_spaceShip!, _player.X);
-        Canvas.SetTop(_spaceShip!, _player.Y);
+    }
+    private void MoveSpaceShip()
+    {
+        Canvas.SetLeft(_player.Sprite!, _player.X);
+        Canvas.SetTop(_player.Sprite!, _player.Y);
     }
 
     private void MoveEnemies(object? sender, EventArgs e)
@@ -203,25 +204,21 @@ public partial class MainWindow : Window
         }
     }
 
-
-
     private void CreateBullet(double x, double y, double speed, bool isPlayerBullet)
     {
-        var bullet = new Image
-        {
-            Width = 20,
-            Height = 35,
-            Source = this.FindControl<Image>("Bala")?.Source,
-        };
+
+        var bullet = new Bullet(x, y, speed, isPlayerBullet);
+        bullet.Sprite!.Source = this.FindControl<Image>("Bala")?.Source;
+
         
         if(!isPlayerBullet){
-            bullet.RenderTransform = new RotateTransform(180);
+            bullet.Sprite.RenderTransform = new RotateTransform(180);
         }
 
-        Canvas.SetLeft(bullet, x);
-        Canvas.SetTop(bullet, y);
+        Canvas.SetLeft(bullet.Sprite, x);
+        Canvas.SetTop(bullet.Sprite, y);
 
-        _gameCanvas!.Children.Add(bullet);
+        _gameCanvas!.Children.Add(bullet.Sprite);
         _bullets.Add(bullet);
 
         // Iniciar o movimento da bala
@@ -231,7 +228,7 @@ public partial class MainWindow : Window
         };
         bulletTimer.Tick += (_, _) =>
         {
-            var bulletY = Canvas.GetTop(bullet);
+            var bulletY = Canvas.GetTop(bullet.Sprite);
 
             if (isPlayerBullet)
             {
@@ -241,7 +238,7 @@ public partial class MainWindow : Window
             {
                 bulletY += speed;
             }
-            Canvas.SetTop(bullet, bulletY);
+            Canvas.SetTop(bullet.Sprite, bulletY);
 
 
             // Verificar colisão com inimigos ou jogador
@@ -250,7 +247,7 @@ public partial class MainWindow : Window
             // Remove a bala se estiver fora da tela
             if (bulletY < 0 || bulletY > _gameCanvas.Bounds.Height)
             {
-                _gameCanvas.Children.Remove(bullet);
+                _gameCanvas.Children.Remove(bullet.Sprite);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
                 if (isPlayerBullet)
@@ -263,26 +260,26 @@ public partial class MainWindow : Window
         bulletTimer.Start();
     }
 
-    private void CheckBulletCollision(Image bullet, bool isPlayerBullet, DispatcherTimer bulletTimer)
+    private void CheckBulletCollision(Bullet bullet, bool isPlayerBullet, DispatcherTimer bulletTimer)
     {
         if (isPlayerBullet)
         {
             // Verificar colisão com inimigos
             foreach (var enemy in _enemies)
             {
-                if (CheckCollision(bullet, enemy.Sprite!))
+                if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                 {
                     // Remover inimigo e bala
                     // _waveOut.Init(_explosion);
                     // _waveOut.Play();
-
+                    _viewModel.UpdateScore(10);
+                    this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
                     _enemies.Remove(enemy);
-                    _gameCanvas.Children.Remove(bullet);
+                    _gameCanvas.Children.Remove(bullet.Sprite!);
                     _bullets.Remove(bullet);
                     bulletTimer.Stop(); // Parar o timer da bala
                     _canShoot = true;
-                    ((MainWindowViewModel)DataContext!).UpdateScore(10);
                     break;
                 }
             }
@@ -290,10 +287,10 @@ public partial class MainWindow : Window
         else
         {
             // Verificar colisão com jogador
-            if (CheckCollision(bullet, _spaceShip!))
+            if (CheckCollision(bullet.Sprite!, _player.Sprite!))
             {
                 // Lidar com a colisão com o jogador (por exemplo, perder vida)
-                _gameCanvas!.Children.Remove(bullet);
+                _gameCanvas!.Children.Remove(bullet.Sprite!);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
                 _canShoot = true;
@@ -303,10 +300,10 @@ public partial class MainWindow : Window
         // Verificar colisão com barreiras
         foreach (var shield in _shields)
         {
-            if (CheckCollision(bullet, shield.Sprite!))
+            if (CheckCollision(bullet.Sprite!, shield.Sprite!))
             {
                 // Remover a bala e danificar a barreira
-                _gameCanvas!.Children.Remove(bullet);
+                _gameCanvas!.Children.Remove(bullet.Sprite!);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
                 _canShoot = true;
@@ -337,9 +334,9 @@ public partial class MainWindow : Window
         }
 
         // Remover bala se estiver fora da tela
-        if (Canvas.GetTop(bullet) < 0 || Canvas.GetTop(bullet) > _gameCanvas!.Bounds.Height)
+        if (Canvas.GetTop(bullet.Sprite!) < 0 || Canvas.GetTop(bullet.Sprite!) > _gameCanvas!.Bounds.Height)
         {
-            _gameCanvas!.Children.Remove(bullet);
+            _gameCanvas!.Children.Remove(bullet.Sprite!);
             _bullets.Remove(bullet);
             bulletTimer.Stop(); // Parar o timer da bala
             _canShoot = true;
