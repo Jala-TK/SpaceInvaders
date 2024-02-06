@@ -41,7 +41,7 @@ public partial class MainWindow : Window
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
         
-        PlayAudio("backgroundmusic.mpeg", 0.1f, false);
+        PlayAudio("backgroundmusic.mpeg", 0.1f, true);
 
         
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");

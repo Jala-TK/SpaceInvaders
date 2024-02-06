@@ -31,14 +31,21 @@ public partial class MainWindow : Window
             wavePlayer.Init(audioFileReader);
             wavePlayer.Volume = volume;
 
-            while (loop)
+            
+            wavePlayer.PlaybackStopped += (_, _) =>
             {
-                wavePlayer.PlaybackStopped += (sender, args) =>
+                if (loop)
                 {
                     audioFileReader.Position = 0; // Reinicia a posição do leitor de áudio
                     wavePlayer.Play(); // Reinicia a reprodução
-                };  
-            }
+                }
+                else
+                {
+                    audioFileReader.Dispose();
+                    wavePlayer.Dispose();
+                    File.Delete(tempFile);
+                }
+            };
             
             wavePlayer.Play();
 
