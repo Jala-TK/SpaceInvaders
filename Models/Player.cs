@@ -11,4 +11,6 @@ public class Player
         Width = 100,
         Height = 100,
     };
+
+    public int Life { get; set; } = 3;
 }

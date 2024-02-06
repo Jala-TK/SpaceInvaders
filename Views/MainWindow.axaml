@@ -41,6 +41,8 @@
                 <Image x:Name="Bala" IsVisible="False" Source="/Assets/Sprites/bullet.gif"/>
 
                 <TextBlock x:Name="Score" Canvas.Left="690" Canvas.Bottom="0" Text="{Binding Score}"/>
+                <TextBlock x:Name="PlayerLife" Canvas.Left="50" Canvas.Bottom="0" Text="{Binding PlayerLife}"/>
+
         </Canvas>
 
 </Window>

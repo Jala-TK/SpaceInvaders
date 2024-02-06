@@ -53,7 +53,7 @@ public partial class MainWindow : Window
         // _waveOut = new WaveOutEvent();
         // _explosion = new WaveFileReader("Assets/2.wav");
         _enemyBulletTimer = new DispatcherTimer();
-        _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(1500); // Defina o intervalo desejado para o tiro dos inimigos
+        _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(2000); // Defina o intervalo desejado para o tiro dos inimigos
         _enemyBulletTimer.Tick += EnemyShoot!;
         _enemyBulletTimer.Start();
 
@@ -289,6 +289,7 @@ public partial class MainWindow : Window
                     PlayAudio("2.wav", 0.1f, false);
                     _viewModel.UpdateScore(10);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
+                    this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
                     _enemies.Remove(enemy);
                     _gameCanvas.Children.Remove(bullet.Sprite!);
@@ -307,14 +308,14 @@ public partial class MainWindow : Window
             // Verificar colisão com jogador
             if (CheckCollision(bullet.Sprite!, _player.Sprite!))
             {
-                // Lidar com a colisão com o jogador (por exemplo, perder vida)
+                PlayAudio("2.wav", 0.1f, false);
+                _viewModel.LifeUpdate(-1);
+                this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                 _gameCanvas!.Children.Remove(bullet.Sprite!);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
-                if (isPlayerBullet)
-                {
-                    _canShoot = true;
-                }            }
+                _canShoot = true;
+            }
         }
         
         // Verificar colisão com barreiras
@@ -381,10 +382,12 @@ public partial class MainWindow : Window
         var random = new Random();
 
         // Escolha um inimigo aleatório para atirar
-        if (_enemies.Count > 0)
+        var enemiesCanShoot = _enemies.Where(enemy => enemy.Row == 0).ToList();
+
+        if (enemiesCanShoot.Count > 0)
         {
-            var randomEnemyIndex = random.Next(_enemies.Count);
-            var randomEnemy = _enemies[randomEnemyIndex].Sprite;
+            var randomEnemyIndex = random.Next(enemiesCanShoot.Count);
+            var randomEnemy = enemiesCanShoot[randomEnemyIndex].Sprite;
 
             var bulletX = Canvas.GetLeft(randomEnemy!) + (randomEnemy!.Width / 2) - 10;
             var bulletY = Canvas.GetTop(randomEnemy) + randomEnemy.Height;
@@ -392,6 +395,12 @@ public partial class MainWindow : Window
             CreateBullet(bulletX, bulletY, 3, false);
             CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer);
         }
+
+    }
+
+    public void ClearWindow()
+    {
+        this.Content = new StackPanel();
     }
 
 
