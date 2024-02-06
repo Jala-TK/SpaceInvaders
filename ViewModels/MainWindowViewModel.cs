@@ -38,6 +38,16 @@ namespace SpaceInvadersMVVM.ViewModels
             MoveRightCommand.Subscribe(_ => MoveRight());
             ShootCommand.Subscribe(_ => Shoot());
             
+            PlayerLifeObservable
+                .Subscribe(life =>
+                {
+                    Console.WriteLine("Vida do jogador: " + life);
+                    if (life <= 0)
+                    {
+                        ShowGameOverScreen();
+                    }
+                });
+            
         }
 
         private void MoveLeft()
