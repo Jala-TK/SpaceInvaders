@@ -287,7 +287,7 @@ public partial class MainWindow : Window
                     // _waveOut.Init(_explosion);
                     // _waveOut.Play();
                     PlayAudio("2.wav", 0.1f, false);
-                    _viewModel.UpdateScore(10);
+                    _viewModel.UpdateScore(enemy.Score);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
