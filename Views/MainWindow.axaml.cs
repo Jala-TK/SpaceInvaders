@@ -198,7 +198,7 @@ public partial class MainWindow : Window
                 {
                     var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
                     var bulletY = _player.Y;
-                    CreateBullet(bulletX, bulletY, 3, true);
+                    CreateBullet(bulletX, bulletY, 8, true);
                     _canShoot = false; // Impede que o jogador atire novamente imediatamente
                 }
                 break;
@@ -335,8 +335,8 @@ public partial class MainWindow : Window
                 if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                 {
                     PlayAudio("2.wav", 0.1f, false);
-                    // _viewModel.UpdateScore(enemy.Score);
-                    _viewModel.UpdateScore(400);
+                    _viewModel.UpdateScore(enemy.Score);
+                   // _viewModel.UpdateScore(400);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
