@@ -10,18 +10,6 @@ public partial class MainWindow : Window
 {
     private IWavePlayer wavePlayer;
     private AudioFileReader audioFileReader;
-    public void StopWaveBackground()
-    {
-        if (wavePlayer != null && wavePlayer.PlaybackState == PlaybackState.Playing)
-        {
-            wavePlayer.Stop();
-            wavePlayer.Dispose();
-        }
-        if (audioFileReader != null)
-        {
-            audioFileReader.Dispose();
-        }
-    }
 
     public void PlayAudio(string assetName, float volume, bool loop)
     {

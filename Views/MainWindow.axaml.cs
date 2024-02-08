@@ -45,14 +45,13 @@ public partial class MainWindow : Window
 
             // Lógica para mostrar a tela de game over na janela atual
             ClearWindow();
-            StopWaveBackground();
 
             var gameOverContent = new StackPanel
             {
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             };
-            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \n Score "+ _viewModel.Score, FontSize = 24 });
+            gameOverContent.Children.Add(new TextBlock { Text = "Game Over", FontSize = 24 });
             Content = gameOverContent;
 
         };
