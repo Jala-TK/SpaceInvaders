@@ -71,13 +71,13 @@ namespace SpaceInvadersMVVM.ViewModels
         {
             
         }
-
+        
         private void ShowGameOverScreen()
         {
             Console.WriteLine("Mostrando tela de Game Over");
             GameOver?.Invoke(this, EventArgs.Empty);
         }
-        public event EventHandler GameOver;
+        public event EventHandler? GameOver;
 
     }
 }

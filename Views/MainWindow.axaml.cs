@@ -7,6 +7,9 @@ using Avalonia.Threading;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
+using Avalonia.Platform;
+using NAudio.Wave;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
 // using NAudio.Wave;
@@ -17,17 +20,19 @@ namespace SpaceInvadersMVVM.Views;
 public partial class MainWindow : Window
 
 {
-    private readonly Canvas? _gameCanvas;
-    private Player _player;
+    private Canvas? _gameCanvas;
+    private Player? _player;
     private bool _canShoot = true;
     private double _moveSpeed = 5.0;
     private List<Invader> _enemies = [];
     private List<Barrier> _shields = [];
     private List<Bullet> _bullets = [];
-    private DispatcherTimer _timer;
+    private DispatcherTimer? _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
-    private DispatcherTimer _enemyBulletTimer;
+    private DispatcherTimer? _enemyBulletTimer;
     private readonly MainWindowViewModel _viewModel;
+    private IWavePlayer? _wavePlayer;
+    private AudioFileReader? _audioFileReader;
 
     // private WaveOutEvent _waveOut;
     // private WaveFileReader _explosion;
@@ -40,22 +45,49 @@ public partial class MainWindow : Window
 #endif
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
-        _viewModel.GameOver += (sender, args) =>
-        {
-
-            // Lógica para mostrar a tela de game over na janela atual
-            ClearWindow();
-
-            var gameOverContent = new StackPanel
-            {
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-            };
-            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \nScore: "  + _viewModel.Score, FontSize = 24 });
-            Content = gameOverContent;
-
-        };
         
+        var startScreen = new StartScreen();
+        Content = startScreen;
+
+        KeyDown += KeyStart;
+
+    }
+    
+    private void KeyStart(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            StartGame();
+        }
+    }
+    
+    private void StartGame()
+    {
+        ClearWindow();
+
+        // Inicialize os componentes do jogo
+        InitializeGameComponents();
+        
+        Content = _gameCanvas;
+        
+
+
+        // Inicie o timer para mover os inimigos
+        _timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(500)
+        };
+        _timer.Tick += (_, _) =>
+        {
+            PlayAudio("6.wav", 0.1f, false);
+            MoveEnemies();
+            PlayAudio("6.wav", 0.1f, false);
+        };
+        _timer.Start();
+    }
+
+    private void InitializeGameComponents()
+    {
         PlayAudio("backgroundmusic.mpeg", 0.1f, true);
 
         
@@ -124,20 +156,24 @@ public partial class MainWindow : Window
             }
         }
         KeyDown += OnKeyPressed;
-
-        _timer = new DispatcherTimer
+        
+        // Inicialize o conteúdo do jogo
+        _viewModel.GameOver += (sender, args) =>
         {
-            Interval = TimeSpan.FromMilliseconds(500)
+            // Lógica para mostrar a tela de game over na janela atual
+            ClearWindow();
+            StopGame();
+            var gameOverContent = new StackPanel
+            {
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \nScore: " + _viewModel.Score, FontSize = 24 });
+            Content = gameOverContent;
+            
         };
-        _timer.Tick += (_, _) =>
-        {
-            PlayAudio("6.wav", 0.1f, false);
-            MoveEnemies();
-            PlayAudio("6.wav", 0.1f, false);
-        };
-        _timer.Start();
-
     }
+
 
     private void InitializeComponent()
     {
@@ -160,7 +196,7 @@ public partial class MainWindow : Window
                 _viewModel.ShootCommand.Execute().Subscribe();
                 if (_canShoot)
                 {
-                    var bulletX = _player.X + (_player.Sprite!.Width / 2) - 10;
+                    var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
                     var bulletY = _player.Y;
                     CreateBullet(bulletX, bulletY, 3, true);
                     _canShoot = false; // Impede que o jogador atire novamente imediatamente
@@ -171,7 +207,7 @@ public partial class MainWindow : Window
     }
     private void MoveSpaceShip()
     {
-        Canvas.SetLeft(_player.Sprite!, _player.X);
+        Canvas.SetLeft(_player!.Sprite!, _player.X);
         Canvas.SetTop(_player.Sprite!, _player.Y);
     }
 
@@ -298,11 +334,9 @@ public partial class MainWindow : Window
             {
                 if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                 {
-                    // Remover inimigo e bala
-                    // _waveOut.Init(_explosion);
-                    // _waveOut.Play();
                     PlayAudio("2.wav", 0.1f, false);
-                    _viewModel.UpdateScore(enemy.Score);
+                    // _viewModel.UpdateScore(enemy.Score);
+                    _viewModel.UpdateScore(400);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
@@ -321,7 +355,7 @@ public partial class MainWindow : Window
         else
         {
             // Verificar colisão com jogador
-            if (CheckCollision(bullet.Sprite!, _player.Sprite!))
+            if (CheckCollision(bullet.Sprite!, _player!.Sprite!))
             {
                 PlayAudio("2.wav", 0.1f, false);
                 _viewModel.LifeUpdate(-1);
@@ -408,14 +442,90 @@ public partial class MainWindow : Window
             var bulletY = Canvas.GetTop(randomEnemy) + randomEnemy.Height;
 
             CreateBullet(bulletX, bulletY, 3, false);
-            CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer);
+            CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer!);
         }
 
     }
+    
+    public void PlayAudio(string assetName, float volume, bool loop)
+    {
+        using (var stream = AssetLoader.Open(new Uri($"avares://SpaceInvadersMVVM/Assets/Audio/{assetName}")))
+        {
+            if (stream == null)
+                throw new InvalidOperationException("Resource not found.");
+
+            // Create a temporary file
+            var tempFile = Path.GetTempFileName();
+            using (var fileStream = File.Create(tempFile))
+            {
+                stream.CopyTo(fileStream);
+            }
+            
+            // Play the audio file
+            _wavePlayer = new WaveOutEvent();
+            _audioFileReader = new AudioFileReader(tempFile);
+            _wavePlayer.Init(_audioFileReader);
+            _wavePlayer.Volume = volume;
+
+            
+            _wavePlayer.PlaybackStopped += (_, _) =>
+            {
+                if (loop)
+                {
+                    _audioFileReader.Position = 0; // Reinicia a posição do leitor de áudio
+                    _wavePlayer.Play(); // Reinicia a reprodução
+                }
+                else
+                {
+                    _audioFileReader.Dispose();
+                    _wavePlayer.Dispose();
+                    File.Delete(tempFile);
+                }
+            };
+            
+            _wavePlayer.Play();
+        }
+    }
+    
+
+    public void StopGame()
+    {
+        _timer?.Stop();
+        _enemyBulletTimer?.Stop();
+
+        // Remova todos os inimigos da tela
+        foreach (var enemy in _enemies)
+        {
+            _gameCanvas?.Children.Remove(enemy.Sprite);
+        }
+        _enemies.Clear();
+
+        // Remova todos os tiros da tela
+        foreach (var bullet in _bullets)
+        {
+            _gameCanvas?.Children.Remove(bullet.Sprite);
+        }
+        _bullets.Clear();
+
+        // Remova todos os escudos da tela
+        foreach (var shield in _shields)
+        {
+            _gameCanvas?.Children.Remove(shield.Sprite);
+        }
+        _shields.Clear();
+
+        // Limpe o conteúdo do canvas do jogo
+        _gameCanvas?.Children.Clear();
+
+    }
+    
+    
+
 
     public void ClearWindow()
     {
-        this.Content = new StackPanel();
+        Content = new StackPanel();
+        StopGame();
     }
 
 
