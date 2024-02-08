@@ -40,6 +40,21 @@ public partial class MainWindow : Window
 #endif
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
+        _viewModel.GameOver += (sender, args) =>
+        {
+
+            // Lógica para mostrar a tela de game over na janela atual
+            ClearWindow();
+
+            var gameOverContent = new StackPanel
+            {
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            gameOverContent.Children.Add(new TextBlock { Text = "Game Over", FontSize = 24 });
+            Content = gameOverContent;
+
+        };
         
         PlayAudio("backgroundmusic.mpeg", 0.1f, true);
 

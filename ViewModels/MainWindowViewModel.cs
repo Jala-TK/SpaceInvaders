@@ -2,6 +2,7 @@
 using System.Reactive;
 using System.Reactive.Subjects;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using SpaceInvadersMVVM.Models;
@@ -70,18 +71,13 @@ namespace SpaceInvadersMVVM.ViewModels
         {
             
         }
-        
+
         private void ShowGameOverScreen()
         {
-            // Cria e mostra a tela de game over
-            Console.WriteLine("Criando a janela de Game Over");
-            var gameOverWindow = new GameOverWindow();
-            gameOverWindow.Show();
-            // Fecha a janela atual
-            (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow!.Close();
+            Console.WriteLine("Mostrando tela de Game Over");
+            GameOver?.Invoke(this, EventArgs.Empty);
         }
-
-
+        public event EventHandler GameOver;
 
     }
 }
