@@ -168,7 +168,7 @@ public partial class MainWindow : Window
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             };
-            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \nScore: " + _viewModel.Score, FontSize = 24 });
+            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \n" + _viewModel.Score, FontSize = 24 });
             Content = gameOverContent;
             
         };
