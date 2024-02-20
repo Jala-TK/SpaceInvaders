@@ -9,9 +9,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Avalonia.Platform;
-using NAudio.Wave;
+//using NAudio.Wave;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
+using LibVLCSharp.Shared;
 // using NAudio.Wave;
 
 
@@ -29,13 +30,14 @@ public partial class MainWindow : Window
     private List<Bullet> _bullets = [];
     private DispatcherTimer? _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
+    private SoundFx _explosion;
     private DispatcherTimer? _enemyBulletTimer;
+    private object _mediaPlayer;
     private readonly MainWindowViewModel _viewModel;
-    private IWavePlayer? _wavePlayer;
-    private AudioFileReader? _audioFileReader;
-
+    // private IWavePlayer? _wavePlayer;
+    // private AudioFileReader? _audioFileReader;
+    private readonly SoundFx _soundFx;
     // private WaveOutEvent _waveOut;
-    // private WaveFileReader _explosion;
 
     public MainWindow()
     {
@@ -45,14 +47,17 @@ public partial class MainWindow : Window
 #endif
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
-        
-        var startScreen = new StartScreen();
+
+        _soundFx = new SoundFx("Assets/Audio/backgroundmusic.mpeg");
+
+
+        StartScreen startScreen = new StartScreen();
         Content = startScreen;
 
         KeyDown += KeyStart;
 
     }
-    
+
     private void KeyStart(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -60,16 +65,16 @@ public partial class MainWindow : Window
             StartGame();
         }
     }
-    
+
     private void StartGame()
     {
         ClearWindow();
 
         // Inicialize os componentes do jogo
         InitializeGameComponents();
-        
+
         Content = _gameCanvas;
-        
+
 
 
         // Inicie o timer para mover os inimigos
@@ -90,7 +95,7 @@ public partial class MainWindow : Window
     {
         PlayAudio("backgroundmusic.mpeg", 0.1f, true);
 
-        
+
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
         _player = _viewModel.Player;
         _player.Sprite!.Source = this.FindControl<Image>("SpaceShip")!.Source;
@@ -98,7 +103,7 @@ public partial class MainWindow : Window
         MoveSpaceShip();
 
         // _waveOut = new WaveOutEvent();
-        // _explosion = new WaveFileReader("Assets/2.wav");
+        _explosion = new SoundFx("Assets/2.wav");
         _enemyBulletTimer = new DispatcherTimer();
         _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(2000); // Defina o intervalo desejado para o tiro dos inimigos
         _enemyBulletTimer.Tick += EnemyShoot!;
@@ -118,7 +123,7 @@ public partial class MainWindow : Window
             _gameCanvas!.Children.Add(barrier.Sprite);
             _shields.Add(barrier);
         }
-        
+
         const int rows = 5;
         const int cols = 11;
         double enemyMargin = 10;
@@ -156,7 +161,7 @@ public partial class MainWindow : Window
             }
         }
         KeyDown += OnKeyPressed;
-        
+
         // Inicialize o conteúdo do jogo
         _viewModel.GameOver += (sender, args) =>
         {
@@ -170,7 +175,7 @@ public partial class MainWindow : Window
             };
             gameOverContent.Children.Add(new TextBlock { Text = "Game Over \n" + _viewModel.Score, FontSize = 24 });
             Content = gameOverContent;
-            
+
         };
     }
 
@@ -270,8 +275,9 @@ public partial class MainWindow : Window
         var bullet = new Bullet(x, y, speed, isPlayerBullet);
         bullet.Sprite!.Source = this.FindControl<Image>("Bala")?.Source;
 
-        
-        if(!isPlayerBullet){
+
+        if (!isPlayerBullet)
+        {
             PlayAudio("1.wav", 0.1f, false);
             bullet.Sprite.RenderTransform = new RotateTransform(180);
         }
@@ -336,7 +342,7 @@ public partial class MainWindow : Window
                 {
                     PlayAudio("2.wav", 0.1f, false);
                     _viewModel.UpdateScore(enemy.Score);
-                   // _viewModel.UpdateScore(400);
+                    // _viewModel.UpdateScore(400);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                     _gameCanvas!.Children.Remove(enemy.Sprite!);
@@ -366,7 +372,7 @@ public partial class MainWindow : Window
                 _canShoot = true;
             }
         }
-        
+
         // Verificar colisão com barreiras
         foreach (var shield in _shields)
         {
@@ -415,7 +421,8 @@ public partial class MainWindow : Window
             if (isPlayerBullet)
             {
                 _canShoot = true;
-            }        }
+            }
+        }
     }
 
     private bool CheckCollision(Image element1, Image element2)
@@ -446,47 +453,41 @@ public partial class MainWindow : Window
         }
 
     }
-    
-    public void PlayAudio(string assetName, float volume, bool loop)
+
+    private void LoopAudio(object? sender, EventArgs e)
     {
-        using (var stream = AssetLoader.Open(new Uri($"avares://SpaceInvadersMVVM/Assets/Audio/{assetName}")))
+        // Correção: Verificar se o estado do media player é Ended antes de reiniciar
+        if (_soundFx.State == VLCState.Ended)
         {
-            if (stream == null)
-                throw new InvalidOperationException("Resource not found.");
+            // Correção: Parar a reprodução antes de reiniciar
+            _soundFx.Stop();
 
-            // Create a temporary file
-            var tempFile = Path.GetTempFileName();
-            using (var fileStream = File.Create(tempFile))
-            {
-                stream.CopyTo(fileStream);
-            }
-            
-            // Play the audio file
-            _wavePlayer = new WaveOutEvent();
-            _audioFileReader = new AudioFileReader(tempFile);
-            _wavePlayer.Init(_audioFileReader);
-            _wavePlayer.Volume = volume;
+            // Correção: Utilizar o método SetNewMedia para configurar uma nova instância de Media
+            SetNewMedia();
 
-            
-            _wavePlayer.PlaybackStopped += (_, _) =>
-            {
-                if (loop)
-                {
-                    _audioFileReader.Position = 0; // Reinicia a posição do leitor de áudio
-                    _wavePlayer.Play(); // Reinicia a reprodução
-                }
-                else
-                {
-                    _audioFileReader.Dispose();
-                    _wavePlayer.Dispose();
-                    File.Delete(tempFile);
-                }
-            };
-            
-            _wavePlayer.Play();
+            // Continuar a reprodução
+            _soundFx.Play();
         }
     }
-    
+
+    private void SetNewMedia()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void PlayAudio(string assetName, float volume, bool loop)
+    {
+        var audioFilePath = $"avares://SpaceInvadersMVVM/Assets/Audio/{assetName}";
+        _soundFx.SetVolume(volume);
+
+        if (loop)
+        {
+            _soundFx.AudioPlaybackEnded += LoopAudio;
+        }
+
+        _soundFx.Play();
+    }
+
 
     public void StopGame()
     {
@@ -518,9 +519,6 @@ public partial class MainWindow : Window
         _gameCanvas?.Children.Clear();
 
     }
-    
-    
-
 
     public void ClearWindow()
     {
