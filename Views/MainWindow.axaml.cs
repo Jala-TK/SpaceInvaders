@@ -7,12 +7,8 @@ using Avalonia.Threading;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
-using Avalonia.Platform;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
-using LibVLCSharp.Shared;
-
 
 namespace SpaceInvadersMVVM.Views;
 
@@ -22,19 +18,22 @@ public partial class MainWindow : Window
     private Canvas? _gameCanvas;
     private Player? _player;
     private bool _canShoot = true;
+    private bool _gameOn;
+    private bool _playGame;
     private double _moveSpeed = 5.0;
     private List<Invader> _enemies = [];
     private List<Barrier> _shields = [];
     private List<Bullet> _bullets = [];
     private DispatcherTimer? _timer;
     private double _invadersDirection = 1; // 1 para direita, -1 para esquerda
-    private SoundFx _explosion;
+    private SoundFx _explosionSound;
+    private SoundFx _playerBulletSound;
+    private SoundFx _enemyBulletSound;
+    private SoundFx _backgroundSound;
+    private SoundFx _moveEnemiesSound;
     private DispatcherTimer? _enemyBulletTimer;
-    private object _mediaPlayer;
-    private string audioFilePath;
-    private AudioManager _audioManager;
+    private int _alienCount;
     private readonly MainWindowViewModel _viewModel;
-    private readonly SoundFx _soundFx;
 
     public MainWindow()
     {
@@ -43,14 +42,16 @@ public partial class MainWindow : Window
         this.AttachDevTools();
 #endif
 
-        _audioManager = new AudioManager();
+        _explosionSound = new SoundFx("explosion.wav");
+        _playerBulletSound = new SoundFx("1.wav");
+        _enemyBulletSound = new SoundFx("3.wav");
+        _backgroundSound = new SoundFx("backgroundmusic.mpeg");
+        _moveEnemiesSound = new SoundFx("6.wav");
+
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
 
-        _audioManager.PlayAudio("audio.mp3", 5.0f, true);
-
-
-        StartScreen startScreen = new StartScreen();
+        StartScreen startScreen = new StartScreen(_viewModel);
         Content = startScreen;
 
         KeyDown += KeyStart;
@@ -59,10 +60,15 @@ public partial class MainWindow : Window
 
     private void KeyStart(object? sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        if (_gameOn == false)
         {
-            StartGame();
+            if (e.Key == Key.Enter)
+            {
+                StartGame();
+                _gameOn = true;
+            }
         }
+
     }
 
     private void StartGame()
@@ -79,28 +85,24 @@ public partial class MainWindow : Window
         };
         _timer.Tick += (_, _) =>
         {
-            //_audioManager.PlayAudio("6.wav", 0.1f, false);
+            _moveEnemiesSound.Play(1);
             MoveEnemies();
-            //_audioManager.PlayAudio("6.wav", 0.1f, false);
+            _moveEnemiesSound.Play(1);
         };
         _timer.Start();
     }
 
     private void InitializeGameComponents()
     {
-        // _audioManager.PlayAudio("backgroundmusic.mpeg", 0.1f, true);
+        _backgroundSound.PlayInLoop(1);
 
-
+        _playGame = true;
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
         _player = _viewModel.Player;
         _player.Sprite!.Source = this.FindControl<Image>("SpaceShip")!.Source;
         _gameCanvas!.Children.Add(_player.Sprite);
         MoveSpaceShip();
 
-        // _audioManager = new AudioManager();
-        // _explosion = new SoundFx(_audioManager);
-        // _explosion.LoadAudio("../../../Assets/Audio/2.wav");
-        // _explosion.Play();
         _enemyBulletTimer = new DispatcherTimer();
         _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(2000); // Defina o intervalo desejado para o tiro dos inimigos
         _enemyBulletTimer.Tick += EnemyShoot!;
@@ -121,6 +123,60 @@ public partial class MainWindow : Window
             _shields.Add(barrier);
         }
 
+        GenerateNewAliens();
+        _alienCount = _enemies.Count;
+
+        KeyDown += OnKeyPressed;
+
+        // Inicialize o conteúdo do jogo
+        _viewModel.GameOver += (_, _) =>
+        {
+            // Lógica para mostrar a tela de game over na janela atual
+            _backgroundSound.Stop();
+            ClearWindow();
+            StopGame();
+            var gameOverContent = new StackPanel
+            {
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \n" + _viewModel.Score, FontSize = 24 });
+            Content = gameOverContent;
+
+            var nicknameTextBlock = new TextBlock()
+            {
+                Text = "\nSalve seu score:",
+                Width = 200,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                // PlaceholderText = "Enter your nickname"
+            };
+            gameOverContent.Children.Add(nicknameTextBlock);
+
+            var nicknameTextBox = new TextBox
+            {
+                Width = 200,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                Watermark = "Enter your nickname"
+            };
+            gameOverContent.Children.Add(nicknameTextBox);
+
+            var saveButton = new Button
+            {
+                Content = "Save Score",
+                Width = 100,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 20, 0, 0)
+            };
+            saveButton.Click += (_, _) =>
+            {
+                _viewModel.SaveScoreToCsv(nicknameTextBox.Text!);
+            };
+            gameOverContent.Children.Add(saveButton);
+        };
+    }
+
+    private void GenerateNewAliens()
+    {
         const int rows = 5;
         const int cols = 11;
         double enemyMargin = 10;
@@ -157,25 +213,9 @@ public partial class MainWindow : Window
                 _enemies.Add(enemy);
             }
         }
-        KeyDown += OnKeyPressed;
+        _alienCount = _enemies.Count;
 
-        // Inicialize o conteúdo do jogo
-        _viewModel.GameOver += (sender, args) =>
-        {
-            // Lógica para mostrar a tela de game over na janela atual
-            ClearWindow();
-            StopGame();
-            var gameOverContent = new StackPanel
-            {
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-            };
-            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \n" + _viewModel.Score, FontSize = 24 });
-            Content = gameOverContent;
-
-        };
     }
-
 
     private void InitializeComponent()
     {
@@ -184,27 +224,30 @@ public partial class MainWindow : Window
 
     private void OnKeyPressed(object? sender, KeyEventArgs e)
     {
-        switch (e.Key)
-        {
-            case Key.Left or Key.A:
-                _viewModel.MoveLeftCommand.Execute().Subscribe();
-                MoveSpaceShip();
-                break;
-            case Key.Right or Key.D:
-                _viewModel.MoveRightCommand.Execute().Subscribe();
-                MoveSpaceShip();
-                break;
-            case Key.Space:
-                _viewModel.ShootCommand.Execute().Subscribe();
-                if (_canShoot)
-                {
-                    var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
-                    var bulletY = _player.Y;
-                    CreateBullet(bulletX, bulletY, 8, true);
-                    _canShoot = false; // Impede que o jogador atire novamente imediatamente
-                }
-                break;
-        }
+        
+            switch (e.Key)
+            {
+                case Key.Left or Key.A:
+                    _viewModel.MoveLeftCommand.Execute().Subscribe();
+                    MoveSpaceShip();
+                    break;
+                case Key.Right or Key.D:
+                    _viewModel.MoveRightCommand.Execute().Subscribe();
+                    MoveSpaceShip();
+                    break;
+                case Key.Space:
+                    _viewModel.ShootCommand.Execute().Subscribe();
+                    if (_canShoot && _playGame)
+                    {
+                        var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
+                        var bulletY = _player.Y;
+                        CreateBullet(bulletX, bulletY, 8, true);
+                        _canShoot = false; // Impede que o jogador atire novamente imediatamente
+                    }
+                    break;
+            }
+        
+
 
     }
     private void MoveSpaceShip()
@@ -215,7 +258,6 @@ public partial class MainWindow : Window
 
     private void MoveEnemies()
     {
-        // _audioManager.PlayAudio("5.wav", 0.1f, false);
         var shouldMoveDown = false;
 
         foreach (var enemy in _enemies)
@@ -275,12 +317,14 @@ public partial class MainWindow : Window
 
         if (!isPlayerBullet)
         {
-            // _audioManager.PlayAudio("1.wav", 0.1f, false);
+            _playerBulletSound.Play(1);
+
             bullet.Sprite.RenderTransform = new RotateTransform(180);
         }
         else
         {
-            // _audioManager.PlayAudio("3.wav", 0.1f, false);
+            _enemyBulletSound.Play(1);
+
         }
 
         Canvas.SetLeft(bullet.Sprite, x);
@@ -337,7 +381,7 @@ public partial class MainWindow : Window
             {
                 if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                 {
-                    // _audioManager.PlayAudio("2.wav", 0.1f, false);
+                    _explosionSound.Play(1);
                     _viewModel.UpdateScore(enemy.Score);
                     // _viewModel.UpdateScore(400);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
@@ -351,6 +395,10 @@ public partial class MainWindow : Window
                     {
                         _canShoot = true;
                     }
+                    if (_enemies.Count == 0)
+                    {
+                        GenerateNewAliens();
+                    }
                     break;
                 }
             }
@@ -360,7 +408,7 @@ public partial class MainWindow : Window
             // Verificar colisão com jogador
             if (CheckCollision(bullet.Sprite!, _player!.Sprite!))
             {
-                // _audioManager.PlayAudio("2.wav", 0.1f, false);
+                _explosionSound.Play(1);
                 _viewModel.LifeUpdate(-1);
                 this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                 _gameCanvas!.Children.Remove(bullet.Sprite!);
@@ -432,89 +480,53 @@ public partial class MainWindow : Window
 
     private void EnemyShoot(object sender, EventArgs e)
     {
-        var random = new Random();
-
-        // Escolha um inimigo aleatório para atirar
-        var enemiesCanShoot = _enemies.Where(enemy => enemy.Row == 0).ToList();
-
-        if (enemiesCanShoot.Count > 0)
+        if (_playGame)
         {
-            var randomEnemyIndex = random.Next(enemiesCanShoot.Count);
-            var randomEnemy = enemiesCanShoot[randomEnemyIndex].Sprite;
+            var random = new Random();
 
-            var bulletX = Canvas.GetLeft(randomEnemy!) + (randomEnemy!.Width / 2) - 10;
-            var bulletY = Canvas.GetTop(randomEnemy) + randomEnemy.Height;
+            // Escolha um inimigo aleatório para atirar
+            var enemiesCanShoot = _enemies.Where(enemy => enemy.Row == 0).ToList();
 
-            CreateBullet(bulletX, bulletY, 3, false);
-            CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer!);
+            if (enemiesCanShoot.Count > 0)
+            {
+                var randomEnemyIndex = random.Next(enemiesCanShoot.Count);
+                var randomEnemy = enemiesCanShoot[randomEnemyIndex].Sprite;
+
+                var bulletX = Canvas.GetLeft(randomEnemy!) + (randomEnemy!.Width / 2) - 10;
+                var bulletY = Canvas.GetTop(randomEnemy) + randomEnemy.Height;
+
+                CreateBullet(bulletX, bulletY, 3, false);
+                CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer!);
+            }
         }
+        
 
     }
 
-    // private void LoopAudio(object? sender, EventArgs e)
-    // {
-    //     // Correção: Verificar se o estado do media player é Ended antes de reiniciar
-    //     if (_soundFx.State == VLCState.Ended)
-    //     {
-    //         // Correção: Parar a reprodução antes de reiniciar
-    //         _soundFx.Stop();
-
-    //         // Correção: Utilizar o método SetNewMedia para configurar uma nova instância de Media
-    //         SetNewMedia();
-
-    //         // Continuar a reprodução
-    //         _soundFx.Play();
-    //     }
-    // }
-
-    // private void SetNewMedia()
-    // {
-    //     throw new NotImplementedException();
-    // }
-
-    // public void PlayAudio(string assetName, float volume, bool loop)
-    // {
-    //     var audioFilePath = Path.GetFullPath($"../../../Assets/Audio/{assetName}");
-    //     _soundFx.SetVolume(volume);
-
-    //     if (loop)
-    //     {
-    //         _soundFx.AudioPlaybackEnded += LoopAudio;
-    //     }
-
-    //     _soundFx.Play();
-
-    //     Console.WriteLine(audioFilePath);
-    // }
-
-    // public string GetAudioFilePath()
-    // {
-    //     return audioFilePath;
-    // }
-
     public void StopGame()
     {
+        _playGame = false;
         _timer?.Stop();
         _enemyBulletTimer?.Stop();
 
         // Remova todos os inimigos da tela
         foreach (var enemy in _enemies)
         {
-            _gameCanvas?.Children.Remove(enemy.Sprite);
+            _gameCanvas?.Children.Remove(enemy.Sprite!);
         }
         _enemies.Clear();
 
         // Remova todos os tiros da tela
         foreach (var bullet in _bullets)
         {
-            _gameCanvas?.Children.Remove(bullet.Sprite);
+            _gameCanvas?.Children.Remove(bullet.Sprite!);
         }
         _bullets.Clear();
 
         // Remova todos os escudos da tela
         foreach (var shield in _shields)
         {
-            _gameCanvas?.Children.Remove(shield.Sprite);
+            _gameCanvas?.Children.Remove(shield.Sprite!);
         }
         _shields.Clear();
 

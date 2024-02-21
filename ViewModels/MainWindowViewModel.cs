@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Subjects;
 using Avalonia;
@@ -18,6 +19,14 @@ namespace SpaceInvadersMVVM.ViewModels
         } = new();
         private double PlayerSpeed { get; set; } = 5.0;
         
+        private List<Score> _scores = null!;
+
+        public List<Score> Scores
+        {
+            get => _scores;
+            set => this.RaiseAndSetIfChanged(ref _scores, value);
+        }
+        
         private readonly Subject<int> _playerLifeSubject = new Subject<int>();
         public IObservable<int> PlayerLifeObservable => _playerLifeSubject;
 
@@ -29,6 +38,8 @@ namespace SpaceInvadersMVVM.ViewModels
         
         public MainWindowViewModel()
         {
+            Scores = LoadScoresFromCsv();
+
             // Configurar comandos
             MoveLeftCommand = ReactiveCommand.Create(MoveLeft);
             MoveRightCommand = ReactiveCommand.Create(MoveRight);

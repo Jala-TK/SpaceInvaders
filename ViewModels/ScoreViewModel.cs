@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using ReactiveUI;
+using SpaceInvadersMVVM.Models;
 
 namespace SpaceInvadersMVVM.ViewModels
 {
@@ -37,6 +41,73 @@ namespace SpaceInvadersMVVM.ViewModels
             Player.Life += newLife;
             _playerLifeSubject.OnNext(Player.Life);
             this.RaisePropertyChanged(nameof(PlayerLife));
+        }
+        
+        public void SaveScoreToCsv(string nickname)
+        {
+            var date = DateTime.Now.ToString("yyyy-MM-dd");
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "highscore.csv");
+            bool found = false;
+
+            // Cria o arquivo CSV se não existir e escreve o cabeçalho
+            if (!File.Exists(filePath))
+            {
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    writer.WriteLine("Nickname,Score,Date");
+                }
+            }
+
+            // Lê o arquivo CSV e verifica se o nickname já existe
+            var lines = File.ReadAllLines(filePath).ToList();
+            for (int i = 1; i < lines.Count; i++) // Começa de 1 para pular o cabeçalho
+            {
+                var data = lines[i].Split(',');
+                if (data[0] == nickname)
+                {
+                    // Se o score for maior, atualiza o registro
+                    if (_score > int.Parse(data[1]))
+                    {
+                        lines[i] = $"{nickname},{_score},{date}";
+                    }
+                    found = true;
+                    break;
+                }
+            }
+
+            // Se o nickname não foi encontrado, adiciona um novo registro
+            if (!found)
+            {
+                lines.Add($"{nickname},{_score},{date}");
+            }
+
+            // Escreve os dados atualizados no arquivo CSV
+            File.WriteAllLines(filePath, lines);
+        }
+
+        public List<Score> LoadScoresFromCsv()
+        {
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "highscore.csv");
+
+            // Verifica se o arquivo CSV existe
+            if (!File.Exists(filePath))
+            {
+                return new List<Score>(); // Retorna uma lista vazia se o arquivo não existir
+            }
+
+            // Lê o arquivo CSV e cria uma lista de objetos Score
+            var scores = new List<Score>();
+            var lines = File.ReadAllLines(filePath).Skip(1); // Pula o cabeçalho
+            foreach (var line in lines)
+            {
+                var data = line.Split(',');
+                if (data.Length >= 3)
+                {
+                    scores.Add(new Score(data[0],int.Parse(data[1]),DateTime.Parse(data[2])));
+                }
+            }
+
+            return scores;
         }
     }
 }

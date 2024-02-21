@@ -1,61 +1,97 @@
-using LibVLCSharp.Shared;
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using LibVLCSharp.Shared;
 
-namespace SpaceInvadersMVVM.Models
+namespace SpaceInvadersMVVM.Models;
+
+public class SoundFx : LibVLC
 {
-    public class SoundFx : LibVLC
+    private string File { get; }
+    private Media Media { get; }
+    private MediaPlayer MediaPlayer { get; set; }
+
+    public SoundFx(string file)
     {
-        private readonly MediaPlayer _mediaPlayer;
-        private Media _media;
-        internal Action<object?, EventArgs> AudioPlaybackEnded;
+        File = file;
+        Media = new Media(this, File);
+        MediaPlayer = new MediaPlayer(Media);
+        Log += null;
+        InitializeMediaPlayer();
 
-        public SoundFx(AudioManager audioManager)
-        {
-            string file = audioManager.GetAudioFilePath();
-
-            Console.WriteLine("PASSEI");
-            _media = new Media(this, file); // AQUI
-            _mediaPlayer = new MediaPlayer(_media);
-            _mediaPlayer.EndReached += LoopAudio;
-        }
-
-        public void Play()
-        {
-            _mediaPlayer.Play();
-        }
-
-        public void Stop()
-        {
-            _mediaPlayer.Stop();
-        }
-
-        public void SetVolume(float volume)
-        {
-            _mediaPlayer.Volume = (int)volume;
-        }
-
-        public void LoadAudio(string filePath)
-        {
-            Console.WriteLine($"Carregando áudio: {filePath}");
-            _media = new Media(this, filePath);
-            _mediaPlayer.Media = _media;
-        }
-
-
-        private void LoopAudio(object? sender, EventArgs e)
-        {
-            // Correção: Verificar se o estado do media player é Ended antes de reiniciar
-            if (_mediaPlayer.State == VLCState.Ended)
-            {
-                // Correção: Parar a reprodução antes de reiniciar
-                _mediaPlayer.Stop();
-
-#pragma warning disable CS8602 // Desreferência de uma referência possivelmente nula.
-                var media = new Media(this, _mediaPlayer.Media.Mrl);
-#pragma warning restore CS8602 // Desreferência de uma referência possivelmente nula.
-                _mediaPlayer.Media = media;
-                _mediaPlayer.Play();
-            }
-        }
     }
+    
+    private void InitializeMediaPlayer()
+    {
+        var libVlc = new LibVLC();
+        MediaPlayer = new MediaPlayer(libVlc);
+    }
+
+    public void Play(int volume)
+    {
+        string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets/Audio", File);
+
+        MediaPlayer.Stop(); // Para a reprodução atual, se houver
+
+        Task.Run(() =>
+        {
+            // Inicia a reprodução em uma nova thread
+            var media = new Media(this, new Uri(outputPath));
+            MediaPlayer.Play(media);
+            MediaPlayer.Play();
+
+            // Mantém a thread em execução enquanto a reprodução estiver ativa
+            while (MediaPlayer.State == VLCState.Playing)
+            {
+                if (MediaPlayer.Volume != volume)
+                {
+                    MediaPlayer.Volume = volume;
+                }
+
+                Thread.Sleep(100); // Aguarda um curto período para evitar consumo excessivo de CPU
+            }
+        });
+    }
+
+
+    public void PlayInLoop(int volume)
+    {
+        string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets/Audio", File);
+
+        MediaPlayer.Stop(); // Pare a reprodução atual, se houver
+        var media = new Media(this, new Uri(outputPath));
+        media.AddOption(":input-repeat=-1"); // Configura a repetição em loop
+
+        MediaPlayer.Volume = volume; // Define o volume
+
+        Task.Run(() =>
+        {
+            // Inicia a reprodução em uma nova thread
+            MediaPlayer.Play(media);
+
+            // Mantém a thread em execução enquanto a reprodução estiver em loop
+            while (MediaPlayer.State == VLCState.Playing)
+            {
+                Thread.Sleep(100); // Aguarda um curto período para evitar consumo excessivo de CPU
+            }
+        });
+    }
+
+
+    public void SetVolume(int volume)
+    {
+        if (volume < 0 || volume > 100)
+        {
+            throw new ArgumentException("O volume deve estar entre 0 e 100.");
+        }
+
+        MediaPlayer.Volume = volume;
+    }
+
+
+
+    public void Stop() => MediaPlayer.Stop();
+    
+    public VLCState State => MediaPlayer.State;
 }
