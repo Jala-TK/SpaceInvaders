@@ -20,7 +20,8 @@ public partial class MainWindow : Window
     private bool _canShoot = true;
     private bool _gameOn;
     private bool _playGame;
-    private double _moveSpeed = 5.0;
+    private double _moveSpeed;
+    private double _moveSpeedDefault = 4.0;
     private List<Invader> _enemies = [];
     private List<Barrier> _shields = [];
     private List<Bullet> _bullets = [];
@@ -51,7 +52,7 @@ public partial class MainWindow : Window
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
 
-        StartScreen startScreen = new StartScreen(_viewModel);
+        var startScreen = new StartScreen(_viewModel);
         Content = startScreen;
 
         KeyDown += KeyStart;
@@ -177,6 +178,8 @@ public partial class MainWindow : Window
 
     private void GenerateNewAliens()
     {
+        _moveSpeedDefault++;
+        _moveSpeed = _moveSpeedDefault;
         const int rows = 5;
         const int cols = 11;
         double enemyMargin = 10;
@@ -268,6 +271,7 @@ public partial class MainWindow : Window
             if (x + moveSpeed < 0 || x + moveSpeed > _gameCanvas!.Bounds.Width - enemy.Sprite!.Width)
             {
                 _invadersDirection *= -1;
+                _moveSpeed += 0.5;
                 shouldMoveDown = true;
                 break;
             }

@@ -39,7 +39,6 @@ namespace SpaceInvadersMVVM.ViewModels
         public MainWindowViewModel()
         {
             Scores = LoadScoresFromCsv();
-
             // Configurar comandos
             MoveLeftCommand = ReactiveCommand.Create(MoveLeft);
             MoveRightCommand = ReactiveCommand.Create(MoveRight);

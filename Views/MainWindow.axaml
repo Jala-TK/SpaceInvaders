@@ -10,10 +10,6 @@
         Title="SpaceInvadersMVVM"
         Width="800" Height="600">
 
-        <Window.DataContext>
-                <vm:MainWindowViewModel />
-        </Window.DataContext>
-
 
         <Canvas Name="GameCanvas" Height="600" Width="800">
                 <Canvas.Background>
@@ -44,5 +40,7 @@
                 <TextBlock x:Name="PlayerLife" Canvas.Left="50" Canvas.Bottom="0" Text="{Binding PlayerLife}"/>
 
         </Canvas>
+        
+        
 
 </Window>

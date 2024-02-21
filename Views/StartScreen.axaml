@@ -1,11 +1,31 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="SpaceInvadersMVVM.Views.StartScreen">
+             xmlns:viewmodels="clr-namespace:SpaceInvadersMVVM.ViewModels;assembly=SpaceInvadersMVVM"
+             x:Class="SpaceInvadersMVVM.Views.StartScreen"
+             x:DataType="viewmodels:MainWindowViewModel">
 
+    <Grid RowDefinitions="*,Auto">
 
+        <DataGrid x:Name="dataGrid" Grid.Row="0"
+                  AutoGenerateColumns="False"
+                  HorizontalAlignment="Center"
+                  Margin="10"
+                  Width="400"
+                  ItemsSource="{Binding Scores}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Nickname" Binding="{Binding Nickname}" />
+                <DataGridTextColumn Header="Score" Binding="{Binding ScoreValue}" />
+                <DataGridTextColumn Header="Date" Binding="{Binding Date}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="1"
+                   Text="Pressione Enter para iniciar o jogo"
+                   HorizontalAlignment="Center"
+                   FontSize="24" />
+    </Grid>
+    
+   
 </UserControl>
