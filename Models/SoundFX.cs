@@ -3,19 +3,18 @@ using System;
 
 namespace SpaceInvadersMVVM.Models
 {
-    public class SoundFx
+    public class SoundFx : LibVLC
     {
         private readonly MediaPlayer _mediaPlayer;
-        private readonly LibVLC _libVLC;
-        //internal object Media;
         private Media _media;
         internal Action<object?, EventArgs> AudioPlaybackEnded;
-        internal VLCState State;
 
-        public SoundFx(string file)
+        public SoundFx(AudioManager audioManager)
         {
-            var libVLC = new LibVLC();
-            _media = new Media(libVLC, file);
+            string file = audioManager.GetAudioFilePath();
+
+            Console.WriteLine("PASSEI");
+            _media = new Media(this, file); // AQUI
             _mediaPlayer = new MediaPlayer(_media);
             _mediaPlayer.EndReached += LoopAudio;
         }
@@ -35,6 +34,14 @@ namespace SpaceInvadersMVVM.Models
             _mediaPlayer.Volume = (int)volume;
         }
 
+        public void LoadAudio(string filePath)
+        {
+            Console.WriteLine($"Carregando áudio: {filePath}");
+            _media = new Media(this, filePath);
+            _mediaPlayer.Media = _media;
+        }
+
+
         private void LoopAudio(object? sender, EventArgs e)
         {
             // Correção: Verificar se o estado do media player é Ended antes de reiniciar
@@ -44,7 +51,7 @@ namespace SpaceInvadersMVVM.Models
                 _mediaPlayer.Stop();
 
 #pragma warning disable CS8602 // Desreferência de uma referência possivelmente nula.
-                var media = new Media(_libVLC, _mediaPlayer.Media.Mrl);
+                var media = new Media(this, _mediaPlayer.Media.Mrl);
 #pragma warning restore CS8602 // Desreferência de uma referência possivelmente nula.
                 _mediaPlayer.Media = media;
                 _mediaPlayer.Play();

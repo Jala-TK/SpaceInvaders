@@ -55,30 +55,12 @@ Este é um projeto de jogo Space Invaders desenvolvido em C# usando o padrão de
 
 ## LibVLCSharp
 
-A biblioteca LibVLCSharp é essencial para a reprodução de áudio. Certifique-se de instalar o SDK do .NET Core e a biblioteca libvlc no sistema antes de executar o aplicativo. Para informações detalhadas sobre a instalação da LibVLCSharp no Linux, consulte [este guia](https://github.com/videolan/libvlcsharp/blob/3.x/docs/linux-setup.md).
+A biblioteca LibVLCSharp é essencial para a reprodução de áudio. Certifique-se de instalar o SDK do .NET Core e a biblioteca libvlc no sistema antes de executar o aplicativo. Para informações detalhadas sobre a instalação da LibVLCSharp no Linux, consulte [este guia](https://github.com/videolan/libvlcsharp/blob/3.x/docs/linux-setup.md) e para Windows, consulte [este guia](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/)
 
 ### Pré-requisitos
 
 - Instale o SDK do .NET Core.
-- Instale a biblioteca libvlc no sistema. No Ubuntu, você pode usar o seguinte comando:
-
-  ```bash
-  sudo apt install libvlc-dev
-  ```
-
-Certifique-se de que as bibliotecas libvlc.so e libvlccore.so estão localizadas em /usr/lib. Caso contrário, ajuste a variável LD_LIBRARY_PATH.
-
-Você também pode precisar instalar o VLC:
-
-```bash
-  sudo apt install vlc
-```
-
-Caso você já tenha o vlc instalado, mas não seja a versão mais recente, use esse comando para atualizá-lo:
-
-```bash
-sudo apt-get update && sudo apt-get install vlc
-```
+- Instale a biblioteca libvlc no sistema. (Certifique-se de que as bibliotecas libvlc.so e libvlccore.so estão localizadas em /usr/lib. Caso contrário, ajuste a variável LD_LIBRARY_PATH.)
 
 ## Instruções de Uso
 
@@ -94,9 +76,9 @@ dotnet run
 
 ## Desenvolvedores
 
-- Lisandra Dias - @lisscodes
-- Kainan Rodrigues - @kainanars
-- Tauã Ferreira - @tauz-hub
+- [Lisandra Dias](github.com/@lisscodes)
+- [Kainan Rodrigues](github.com/@kainanars)
+- [Tauã Ferreira](github.com/@tauz-hub)
 
 ---
 

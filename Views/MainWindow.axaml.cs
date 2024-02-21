@@ -9,11 +9,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Avalonia.Platform;
-//using NAudio.Wave;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
 using LibVLCSharp.Shared;
-// using NAudio.Wave;
 
 
 namespace SpaceInvadersMVVM.Views;
@@ -33,11 +31,10 @@ public partial class MainWindow : Window
     private SoundFx _explosion;
     private DispatcherTimer? _enemyBulletTimer;
     private object _mediaPlayer;
+    private string audioFilePath;
+    private AudioManager _audioManager;
     private readonly MainWindowViewModel _viewModel;
-    // private IWavePlayer? _wavePlayer;
-    // private AudioFileReader? _audioFileReader;
     private readonly SoundFx _soundFx;
-    // private WaveOutEvent _waveOut;
 
     public MainWindow()
     {
@@ -45,10 +42,12 @@ public partial class MainWindow : Window
 #if DEBUG
         this.AttachDevTools();
 #endif
+
+        _audioManager = new AudioManager();
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
 
-        _soundFx = new SoundFx("Assets/Audio/backgroundmusic.mpeg");
+        _audioManager.PlayAudio("audio.mp3", 5.0f, true);
 
 
         StartScreen startScreen = new StartScreen();
@@ -70,30 +69,26 @@ public partial class MainWindow : Window
     {
         ClearWindow();
 
-        // Inicialize os componentes do jogo
         InitializeGameComponents();
 
         Content = _gameCanvas;
 
-
-
-        // Inicie o timer para mover os inimigos
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(500)
         };
         _timer.Tick += (_, _) =>
         {
-            PlayAudio("6.wav", 0.1f, false);
+            //_audioManager.PlayAudio("6.wav", 0.1f, false);
             MoveEnemies();
-            PlayAudio("6.wav", 0.1f, false);
+            //_audioManager.PlayAudio("6.wav", 0.1f, false);
         };
         _timer.Start();
     }
 
     private void InitializeGameComponents()
     {
-        PlayAudio("backgroundmusic.mpeg", 0.1f, true);
+        // _audioManager.PlayAudio("backgroundmusic.mpeg", 0.1f, true);
 
 
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
@@ -102,8 +97,10 @@ public partial class MainWindow : Window
         _gameCanvas!.Children.Add(_player.Sprite);
         MoveSpaceShip();
 
-        // _waveOut = new WaveOutEvent();
-        _explosion = new SoundFx("Assets/2.wav");
+        // _audioManager = new AudioManager();
+        // _explosion = new SoundFx(_audioManager);
+        // _explosion.LoadAudio("../../../Assets/Audio/2.wav");
+        // _explosion.Play();
         _enemyBulletTimer = new DispatcherTimer();
         _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(2000); // Defina o intervalo desejado para o tiro dos inimigos
         _enemyBulletTimer.Tick += EnemyShoot!;
@@ -218,7 +215,7 @@ public partial class MainWindow : Window
 
     private void MoveEnemies()
     {
-        PlayAudio("5.wav", 0.1f, false);
+        // _audioManager.PlayAudio("5.wav", 0.1f, false);
         var shouldMoveDown = false;
 
         foreach (var enemy in _enemies)
@@ -278,12 +275,12 @@ public partial class MainWindow : Window
 
         if (!isPlayerBullet)
         {
-            PlayAudio("1.wav", 0.1f, false);
+            // _audioManager.PlayAudio("1.wav", 0.1f, false);
             bullet.Sprite.RenderTransform = new RotateTransform(180);
         }
         else
         {
-            PlayAudio("3.wav", 0.1f, false);
+            // _audioManager.PlayAudio("3.wav", 0.1f, false);
         }
 
         Canvas.SetLeft(bullet.Sprite, x);
@@ -340,7 +337,7 @@ public partial class MainWindow : Window
             {
                 if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                 {
-                    PlayAudio("2.wav", 0.1f, false);
+                    // _audioManager.PlayAudio("2.wav", 0.1f, false);
                     _viewModel.UpdateScore(enemy.Score);
                     // _viewModel.UpdateScore(400);
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
@@ -363,7 +360,7 @@ public partial class MainWindow : Window
             // Verificar colisão com jogador
             if (CheckCollision(bullet.Sprite!, _player!.Sprite!))
             {
-                PlayAudio("2.wav", 0.1f, false);
+                // _audioManager.PlayAudio("2.wav", 0.1f, false);
                 _viewModel.LifeUpdate(-1);
                 this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
                 _gameCanvas!.Children.Remove(bullet.Sprite!);
@@ -454,40 +451,46 @@ public partial class MainWindow : Window
 
     }
 
-    private void LoopAudio(object? sender, EventArgs e)
-    {
-        // Correção: Verificar se o estado do media player é Ended antes de reiniciar
-        if (_soundFx.State == VLCState.Ended)
-        {
-            // Correção: Parar a reprodução antes de reiniciar
-            _soundFx.Stop();
+    // private void LoopAudio(object? sender, EventArgs e)
+    // {
+    //     // Correção: Verificar se o estado do media player é Ended antes de reiniciar
+    //     if (_soundFx.State == VLCState.Ended)
+    //     {
+    //         // Correção: Parar a reprodução antes de reiniciar
+    //         _soundFx.Stop();
 
-            // Correção: Utilizar o método SetNewMedia para configurar uma nova instância de Media
-            SetNewMedia();
+    //         // Correção: Utilizar o método SetNewMedia para configurar uma nova instância de Media
+    //         SetNewMedia();
 
-            // Continuar a reprodução
-            _soundFx.Play();
-        }
-    }
+    //         // Continuar a reprodução
+    //         _soundFx.Play();
+    //     }
+    // }
 
-    private void SetNewMedia()
-    {
-        throw new NotImplementedException();
-    }
+    // private void SetNewMedia()
+    // {
+    //     throw new NotImplementedException();
+    // }
 
-    public void PlayAudio(string assetName, float volume, bool loop)
-    {
-        var audioFilePath = $"avares://SpaceInvadersMVVM/Assets/Audio/{assetName}";
-        _soundFx.SetVolume(volume);
+    // public void PlayAudio(string assetName, float volume, bool loop)
+    // {
+    //     var audioFilePath = Path.GetFullPath($"../../../Assets/Audio/{assetName}");
+    //     _soundFx.SetVolume(volume);
 
-        if (loop)
-        {
-            _soundFx.AudioPlaybackEnded += LoopAudio;
-        }
+    //     if (loop)
+    //     {
+    //         _soundFx.AudioPlaybackEnded += LoopAudio;
+    //     }
 
-        _soundFx.Play();
-    }
+    //     _soundFx.Play();
 
+    //     Console.WriteLine(audioFilePath);
+    // }
+
+    // public string GetAudioFilePath()
+    // {
+    //     return audioFilePath;
+    // }
 
     public void StopGame()
     {
