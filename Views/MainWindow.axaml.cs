@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
 
@@ -54,6 +55,8 @@ public partial class MainWindow : Window
 
         var startScreen = new StartScreen(_viewModel);
         Content = startScreen;
+        startScreen.StartGameClicked += StartScreen_StartGameClicked!;
+
 
         KeyDown += KeyStart;
 
@@ -66,14 +69,21 @@ public partial class MainWindow : Window
             if (e.Key == Key.Enter)
             {
                 StartGame();
-                _gameOn = true;
             }
         }
 
     }
+    
+    private void StartScreen_StartGameClicked(object sender, EventArgs e)
+    {
+        StartGame();
+    }
+
 
     private void StartGame()
     {
+        _gameOn = true;
+
         ClearWindow();
 
         InitializeGameComponents();
@@ -421,7 +431,7 @@ public partial class MainWindow : Window
                 _canShoot = true;
             }
         }
-
+        
         // Verificar colisão com barreiras
         foreach (var shield in _shields)
         {

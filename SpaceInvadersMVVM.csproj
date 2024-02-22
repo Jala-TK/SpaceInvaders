@@ -32,4 +32,23 @@
       <DependentUpon>MainWindow.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Assets\images\shield\shield1.png" />
+    <UpToDateCheckInput Remove="Assets\images\shield\shield2.png" />
+    <UpToDateCheckInput Remove="Assets\images\shield\shield3.png" />
+    <UpToDateCheckInput Remove="Assets\images\shield\shield4.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\alien10pointV1.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\alien10pointV2.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\alien20pointV1.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\alien20pointV2.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\alien40pointV1.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\alien40pointV2.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\deathimage.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\myteryb.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\shot1.png" />
+    <UpToDateCheckInput Remove="Assets\images\aliens\shot2.png" />
+    <UpToDateCheckInput Remove="Assets\images\others\background.png" />
+    <UpToDateCheckInput Remove="Assets\images\others\background2.png" />
+    <UpToDateCheckInput Remove="Assets\images\others\logo.png" />
+  </ItemGroup>
 </Project>

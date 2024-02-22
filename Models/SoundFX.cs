@@ -32,6 +32,11 @@ public class SoundFx : LibVLC
     {
         string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets/Audio", File);
 
+        if (MediaPlayer.State == VLCState.Playing)
+        {
+            return;
+        }
+        
         MediaPlayer.Stop(); // Para a reprodução atual, se houver
 
         Task.Run(() =>
@@ -53,7 +58,6 @@ public class SoundFx : LibVLC
             }
         });
     }
-
 
     public void PlayInLoop(int volume)
     {

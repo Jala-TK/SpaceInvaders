@@ -11,26 +11,27 @@
         Width="800" Height="600">
 
 
-        <Canvas Name="GameCanvas" Height="600" Width="800">
+        <Canvas Name="GameCanvas">
                 <Canvas.Background>
                         <ImageBrush Source="/Assets/Sprites/Stars.gif"/>
                 </Canvas.Background>
                 <Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
                 
-                <Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/invader1.gif"/>
-                <Image x:Name="Enemy1A" IsVisible="False" Source="/Assets/Sprites/invader1c.gif"/>
+                <Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV1.png"/>
+                <Image x:Name="Enemy1A" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV2.png"/>
                 
-                <Image x:Name="Enemy2" IsVisible="False" Source="../Assets/Sprites/invader2.gif"/>
-                <Image x:Name="Enemy2A" IsVisible="False" Source="/Assets/Sprites/invader2c.gif"/>
+                <Image x:Name="Enemy2" IsVisible="False" Source="/Assets/Sprites/aliens/alien20pointV1.png"/>
+                <Image x:Name="Enemy2A" IsVisible="False" Source="/Assets/Sprites/aliens/alien20pointV2.png"/>
                 
-                <Image x:Name="Enemy3" IsVisible="False" Source="/Assets/Sprites/invader3.gif"/>
-                <Image x:Name="Enemy3A" IsVisible="False" Source="/Assets/Sprites/invader3c.gif"/>
+                <Image x:Name="Enemy3" IsVisible="False" Source="/Assets/Sprites/aliens/alien10pointV1.png"/>
+                <Image x:Name="Enemy3A" IsVisible="False" Source="/Assets/Sprites/aliens/alien10pointV2.png"/>
 
-                <Image x:Name="Shield" IsVisible="False" Source="/Assets/Sprites/shield.gif"/>
-                <Image x:Name="Shield1" IsVisible="False" Source="/Assets/Sprites/shield1.png"/>
-                <Image x:Name="Shield2" IsVisible="False" Source="/Assets/Sprites/shield2.png"/>
-                <Image x:Name="Shield3" IsVisible="False" Source="/Assets/Sprites/shield3.png"/>
-                <Image x:Name="Shield4" IsVisible="False" Source="/Assets/Sprites/shield4.png"/>
+
+                <Image x:Name="Shield" IsVisible="False" Source="/Assets/Sprites/shield/shield1.png"/>
+                <Image x:Name="Shield1" IsVisible="False" Source="/Assets/Sprites/shield/shield2.png"/>
+                <Image x:Name="Shield2" IsVisible="False" Source="/Assets/Sprites/shield/shield3.png"/>
+                <Image x:Name="Shield3" IsVisible="False" Source="/Assets/Sprites/shield/shield4.png"/>
+                <Image x:Name="Shield4" IsVisible="False" Source="/Assets/Sprites/shield/shield5.png"/>
 
                 
                 <Image x:Name="Boss" IsVisible="False" Source="/Assets/Sprites/saucer0.gif"/>

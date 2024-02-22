@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Subjects;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using SpaceInvadersMVVM.Models;
-using SpaceInvadersMVVM.Views;
 
 namespace SpaceInvadersMVVM.ViewModels
 {
@@ -19,9 +16,9 @@ namespace SpaceInvadersMVVM.ViewModels
         } = new();
         private double PlayerSpeed { get; set; } = 5.0;
         
-        private List<Score> _scores = null!;
+        private ObservableCollection<Score> _scores = null!;
 
-        public List<Score> Scores
+        public ObservableCollection<Score> Scores
         {
             get => _scores;
             set => this.RaiseAndSetIfChanged(ref _scores, value);

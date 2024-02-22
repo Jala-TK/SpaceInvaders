@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using ReactiveUI;
@@ -85,25 +86,25 @@ namespace SpaceInvadersMVVM.ViewModels
             File.WriteAllLines(filePath, lines);
         }
 
-        public List<Score> LoadScoresFromCsv()
+        public ObservableCollection<Score> LoadScoresFromCsv()
         {
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "highscore.csv");
 
             // Verifica se o arquivo CSV existe
             if (!File.Exists(filePath))
             {
-                return new List<Score>(); // Retorna uma lista vazia se o arquivo não existir
+                return new ObservableCollection<Score>(); // Retorna uma lista vazia se o arquivo não existir
             }
 
             // Lê o arquivo CSV e cria uma lista de objetos Score
-            var scores = new List<Score>();
+            var scores = new ObservableCollection<Score>();
             var lines = File.ReadAllLines(filePath).Skip(1); // Pula o cabeçalho
             foreach (var line in lines)
             {
                 var data = line.Split(',');
                 if (data.Length >= 3)
                 {
-                    scores.Add(new Score(data[0],int.Parse(data[1]),DateTime.Parse(data[2])));
+                    scores.Add(new Score(data[0],int.Parse(data[1]),DateTime.Parse(data[2]).Date));
                 }
             }
 

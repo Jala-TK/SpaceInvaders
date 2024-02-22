@@ -5,27 +5,66 @@
              xmlns:viewmodels="clr-namespace:SpaceInvadersMVVM.ViewModels;assembly=SpaceInvadersMVVM"
              x:Class="SpaceInvadersMVVM.Views.StartScreen"
              x:DataType="viewmodels:MainWindowViewModel">
-
-    <Grid RowDefinitions="*,Auto">
-
-        <DataGrid x:Name="DataGrid" Grid.Row="0"
-                  AutoGenerateColumns="False"
-                  HorizontalAlignment="Center"
-                  Margin="10"
-                  Width="400"
-                  ItemsSource="{Binding Scores}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Nickname" Binding="{Binding Nickname}" />
-                <DataGridTextColumn Header="Score" Binding="{Binding ScoreValue}" />
-                <DataGridTextColumn Header="Date" Binding="{Binding Date}" />
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <TextBlock Grid.Row="1"
-                   Text="Pressione Enter para iniciar o jogo"
-                   HorizontalAlignment="Center"
-                   FontSize="24" />
-    </Grid>
     
-   
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Título -->
+        <TextBlock Text="Space Invaders"
+                   Grid.Row="0" Grid.Column="1"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="46"
+                   Margin="0,100,0,0"
+                   />
+        
+        <!-- HighScores -->
+        <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right">
+            <TextBlock Text="HighScores" FontSize="16" FontWeight="Bold" Margin="0,50,20,5"/>
+            <Grid Margin="0,10,20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+        
+                <TextBlock Grid.Column="0" Text="Nome" FontWeight="Bold" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="1" Text="Score" FontWeight="Bold" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="2" Text="Data" FontWeight="Bold" HorizontalAlignment="Left"/>
+            </Grid>
+            <ListBox ItemsSource="{Binding Scores}" Width="200" Height="200" Margin="0,10,20,0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                    
+                            <Label Grid.Column="0" FontSize="10" Content="{Binding Nickname}" HorizontalContentAlignment="Left"/>
+                            <Label Grid.Column="1" FontSize="10" Content="{Binding ScoreValue}" HorizontalContentAlignment="Left"/>
+                            <Label Grid.Column="2" FontSize="10" Content="{Binding Date}" HorizontalContentAlignment="Left"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        
+        <!-- Botão Começar -->
+        <Button Grid.Row="1" Grid.Column="0" Content="Começar" HorizontalAlignment="Center" Click="StartButton_Click"/>
+        
+        <!-- Mensagem de Pressionar Enter -->
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="Pressione Enter ou use o botão para iniciar o jogo" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
+    </Grid>
 </UserControl>
