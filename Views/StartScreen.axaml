@@ -8,7 +8,7 @@
 
     <Grid RowDefinitions="*,Auto">
 
-        <DataGrid x:Name="dataGrid" Grid.Row="0"
+        <DataGrid x:Name="DataGrid" Grid.Row="0"
                   AutoGenerateColumns="False"
                   HorizontalAlignment="Center"
                   Margin="10"

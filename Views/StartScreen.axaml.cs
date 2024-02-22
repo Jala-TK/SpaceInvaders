@@ -6,14 +6,11 @@ namespace SpaceInvadersMVVM.Views
 {
     public partial class StartScreen : UserControl
     {
-        private readonly MainWindowViewModel _viewModel;
-
         public StartScreen(MainWindowViewModel viewModel)
         {
             InitializeComponent();
 
-            _viewModel = viewModel;
-            DataContext = _viewModel;
+            DataContext = viewModel;
         }
 
         private void InitializeComponent()

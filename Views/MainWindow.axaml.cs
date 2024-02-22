@@ -33,7 +33,7 @@ public partial class MainWindow : Window
     private SoundFx _backgroundSound;
     private SoundFx _moveEnemiesSound;
     private DispatcherTimer? _enemyBulletTimer;
-    private int _alienCount;
+    public int AlienCount { get; private set; }
     private readonly MainWindowViewModel _viewModel;
 
     public MainWindow()
@@ -125,7 +125,7 @@ public partial class MainWindow : Window
         }
 
         GenerateNewAliens();
-        _alienCount = _enemies.Count;
+        AlienCount = _enemies.Count;
 
         KeyDown += OnKeyPressed;
 
@@ -216,7 +216,7 @@ public partial class MainWindow : Window
                 _enemies.Add(enemy);
             }
         }
-        _alienCount = _enemies.Count;
+        AlienCount = _enemies.Count;
 
     }
 
