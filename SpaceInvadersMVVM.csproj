@@ -22,7 +22,7 @@
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.8.2" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.20" />
   </ItemGroup>
-  <ItemGroup>
+ <ItemGroup>
     <AvaloniaResource Update="Assets\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AvaloniaResource>
@@ -31,6 +31,11 @@
     <Compile Update="Views\MainWindowSound.axaml.cs">
       <DependentUpon>MainWindow.axaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+	<Content Include="Assets\**">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Remove="Assets\images\shield\shield1.png" />
