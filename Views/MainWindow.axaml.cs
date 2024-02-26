@@ -37,7 +37,7 @@ public partial class MainWindow : Window
     private DispatcherTimer? _enemyBulletTimer;
     public int AlienCount { get; private set; }
     private readonly MainWindowViewModel _viewModel;
-
+    private StartScreen _startScreen;
     public MainWindow()
     {
         InitializeComponent();
@@ -54,9 +54,9 @@ public partial class MainWindow : Window
         _viewModel = new MainWindowViewModel();
         DataContext = _viewModel;
 
-        var startScreen = new StartScreen(_viewModel);
-        Content = startScreen;
-        startScreen.StartGameClicked += StartScreen_StartGameClicked!;
+        _startScreen = new StartScreen(_viewModel);
+        Content = _startScreen;
+        _startScreen.StartGameClicked += StartScreen_StartGameClicked!;
 
 
         KeyDown += KeyStart;
@@ -74,7 +74,7 @@ public partial class MainWindow : Window
         }
 
     }
-    
+
     private void StartScreen_StartGameClicked(object sender, EventArgs e)
     {
         StartGame();
@@ -251,6 +251,9 @@ public partial class MainWindow : Window
             saveButton.Click += (_, _) =>
             {
                 _viewModel.SaveScoreToCsv(nicknameTextBox.Text!);
+
+                Content = _startScreen;
+
             };
             gameOverContent.Children.Add(saveButton);
         };
@@ -307,29 +310,29 @@ public partial class MainWindow : Window
 
     private void OnKeyPressed(object? sender, KeyEventArgs e)
     {
-        
-            switch (e.Key)
-            {
-                case Key.Left or Key.A:
-                    _viewModel.MoveLeftCommand.Execute().Subscribe();
-                    MoveSpaceShip();
-                    break;
-                case Key.Right or Key.D:
-                    _viewModel.MoveRightCommand.Execute().Subscribe();
-                    MoveSpaceShip();
-                    break;
-                case Key.Space:
-                    _viewModel.ShootCommand.Execute().Subscribe();
-                    if (_canShoot && _playGame)
-                    {
-                        var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
-                        var bulletY = _player.Y;
-                        CreateBullet(bulletX, bulletY, 8, true);
-                        _canShoot = false; // Impede que o jogador atire novamente imediatamente
-                    }
-                    break;
-            }
-        
+
+        switch (e.Key)
+        {
+            case Key.Left or Key.A:
+                _viewModel.MoveLeftCommand.Execute().Subscribe();
+                MoveSpaceShip();
+                break;
+            case Key.Right or Key.D:
+                _viewModel.MoveRightCommand.Execute().Subscribe();
+                MoveSpaceShip();
+                break;
+            case Key.Space:
+                _viewModel.ShootCommand.Execute().Subscribe();
+                if (_canShoot && _playGame)
+                {
+                    var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
+                    var bulletY = _player.Y;
+                    CreateBullet(bulletX, bulletY, 8, true);
+                    _canShoot = false; // Impede que o jogador atire novamente imediatamente
+                }
+                break;
+        }
+
 
 
     }
@@ -594,7 +597,7 @@ public partial class MainWindow : Window
                 _canShoot = true;
             }
         }
-        
+
         // Verificar colisão com barreiras
         foreach (var shield in _shields)
         {
@@ -676,7 +679,7 @@ public partial class MainWindow : Window
                 CheckBulletCollision(_bullets.Last(), false, _enemyBulletTimer!);
             }
         }
-        
+
 
     }
 

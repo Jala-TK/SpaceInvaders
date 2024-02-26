@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -12,10 +12,8 @@ namespace SpaceInvadersMVVM.ViewModels
     {
         private int _score;
         private int _lifeScore;
-
         public string Score => "Score: " + _score;
         public string PlayerLife => "Lives: " + Player.Life;
-
         public void UpdateScore(int points)
         {
             _score += points;
@@ -27,23 +25,23 @@ namespace SpaceInvadersMVVM.ViewModels
             // {
             //     ShowGameOverScreen();
             // }
-            
+
             // Verifica se a pontuação atingiu ou ultrapassou um múltiplo de 1000
-            if (_lifeScore >= 1000 && Player.Life is < 6 and > 0 )
+            if (_lifeScore >= 1000 && Player.Life is < 6 and > 0)
             {
                 int remainingScore = _lifeScore - 1000;
                 LifeUpdate(1);
                 _lifeScore = remainingScore;
             }
         }
-        
+
         public void LifeUpdate(int newLife)
         {
             Player.Life += newLife;
             _playerLifeSubject.OnNext(Player.Life);
             this.RaisePropertyChanged(nameof(PlayerLife));
         }
-        
+
         public void SaveScoreToCsv(string nickname)
         {
             var date = DateTime.Now.ToString("yyyy-MM-dd");
@@ -104,7 +102,7 @@ namespace SpaceInvadersMVVM.ViewModels
                 var data = line.Split(',');
                 if (data.Length >= 3)
                 {
-                    scores.Add(new Score(data[0],int.Parse(data[1]),DateTime.Parse(data[2]).Date));
+                    scores.Add(new Score(data[0], int.Parse(data[1]), DateTime.Parse(data[2]).Date));
                 }
             }
 
