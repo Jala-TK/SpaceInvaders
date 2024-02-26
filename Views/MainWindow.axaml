@@ -16,10 +16,15 @@
                         <ImageBrush Source="/Assets/Sprites/Stars.gif"/>
                 </Canvas.Background>
                 
-			<Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
-			<Image x:Name="UFO" IsVisible="False" Source="/Assets/Sprites/saucer0.gif"/>
-
-			<Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV1.png"/>
+                <Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
+                <Image x:Name="SpaceShipDestroyer" IsVisible="False" Source="/Assets/Sprites/SpaceShipDestroyer.png"/>
+                
+                <Image x:Name="Destruction" IsVisible="False" Source="/Assets/Sprites/aliens/deathimage.png"/>
+                
+                <Image x:Name="UFO" IsVisible="False" Source="/Assets/Sprites/aliens/myteryb.png"/>
+                <Image x:Name="UFODestroyer" IsVisible="False" Source="/Assets/Sprites/aliens/myterybDestroy.png"/>
+                
+                <Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV1.png"/>
                 <Image x:Name="Enemy1A" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV2.png"/>
                 
                 <Image x:Name="Enemy2" IsVisible="False" Source="/Assets/Sprites/aliens/alien20pointV1.png"/>

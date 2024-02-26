@@ -8,6 +8,8 @@ namespace SpaceInvadersMVVM.Models
         public int Row { get; set; }
         public Image? Sprite { get; set; }
         public int Score { get; set; }
+        public bool IsDestroyed { get; set; }
+
 
         public Invader(int col, int row)
         {

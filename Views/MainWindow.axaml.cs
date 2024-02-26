@@ -18,7 +18,7 @@ public partial class MainWindow : Window
 {
     private Canvas? _gameCanvas;
     private Player? _player;
-    private Ufo _ufo = new Ufo();
+    private Ufo _ufo;
     private bool _canShoot = true;
     private bool _gameOn;
     private bool _playGame;
@@ -44,7 +44,7 @@ public partial class MainWindow : Window
 #if DEBUG
         this.AttachDevTools();
 #endif
-
+        _ufo = new Ufo();
         _explosionSound = new SoundFx("explosion.wav");
         _playerBulletSound = new SoundFx("1.wav");
         _enemyBulletSound = new SoundFx("3.wav");
@@ -106,46 +106,50 @@ public partial class MainWindow : Window
         //Ativar OVNI
         Task.Delay(TimeSpan.FromSeconds(20)).ContinueWith(_ =>
         {
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                ActivateUFO();
-            });
+            Dispatcher.UIThread.InvokeAsync(GenerateUfo);
         });
     }
-    private void ActivateUFO()
+    private void GenerateUfo()
     {
-        // Exibir o OVNI na tela
-        _ufo.Sprite!.IsVisible = true;
-
+        var ufo = new Ufo();
+        ufo.Sprite!.Source = this.FindControl<Image>("UFO")?.Source;
+    
         // Definir a posição inicial do OVNI (por exemplo, no topo da tela)
-        Canvas.SetLeft(_ufo.Sprite!, 0);
-        Canvas.SetTop(_ufo.Sprite!, 0);
+        Canvas.SetLeft(ufo.Sprite!, 0);
+        Canvas.SetTop(ufo.Sprite!, 0);
 
         // Iniciar o movimento do OVNI
-        MoveUFO();
+        _gameCanvas?.Children.Add(ufo.Sprite);
+        _ufo = ufo;
+        MoveUfo();
     }
-    private void MoveUFO()
-    {
 
-        var timer = new DispatcherTimer();
-        timer.Interval = TimeSpan.FromMilliseconds(20); // Intervalo de tempo para o movimento
+    private void MoveUfo()
+    {
+        var timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(20) // Intervalo de tempo para o movimento
+        };
         timer.Tick += (_, _) =>
         {
+            if (_ufo.IsDestroyed)
+            {
+                _gameCanvas!.Children.Remove(_ufo.Sprite!);
+            }
             // Verificar se a nave do jogador está mostrando na tela
             if (_player != null && _gameCanvas != null &&
-                Canvas.GetLeft(_player.Sprite) < _gameCanvas.Bounds.Width &&
-                Canvas.GetLeft(_player.Sprite) + _player.Sprite.Width > 0 &&
+                Canvas.GetLeft(_player.Sprite!) < _gameCanvas.Bounds.Width &&
+                Canvas.GetLeft(_player.Sprite!) + _player.Sprite!.Width > 0 &&
                 Canvas.GetTop(_player.Sprite) < _gameCanvas.Bounds.Height &&
                 Canvas.GetTop(_player.Sprite) + _player.Sprite.Height > 0)
             {
                 // Mover o OVNI para a direita
-                Canvas.SetLeft(_ufo.Sprite!, Canvas.GetLeft(_ufo.Sprite!) + 3); // Ajuste a velocidade 
+                Canvas.SetLeft(_ufo.Sprite!, Canvas.GetLeft(_ufo.Sprite!) + 1); // Ajuste a velocidade 
 
                 // Verificar se o OVNI saiu da tela
                 if (Canvas.GetLeft(_ufo.Sprite!) > _gameCanvas.Bounds.Width)
                 {
                     // Remover o OVNI da tela
-                    _ufo.Sprite!.IsVisible = false;
                     timer.Stop(); // Parar o movimento do OVNI
                 }
             }
@@ -162,7 +166,7 @@ public partial class MainWindow : Window
 
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                ActivateUFO();
+                GenerateUfo();
             });
         };
         activationTimer.Start();
@@ -172,14 +176,12 @@ public partial class MainWindow : Window
     {
         _backgroundSound.PlayInLoop(1);
 
-        _ufo.Sprite = this.FindControl<Image>("UFO");
         _playGame = true;
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
         _player = _viewModel.Player;
         _player.Sprite!.Source = this.FindControl<Image>("SpaceShip")!.Source;
         _gameCanvas!.Children.Add(_player.Sprite);
         MoveSpaceShip();
-
         _enemyBulletTimer = new DispatcherTimer();
         _enemyBulletTimer.Interval = TimeSpan.FromMilliseconds(2000); // Defina o intervalo desejado para o tiro dos inimigos
         _enemyBulletTimer.Tick += EnemyShoot!;
@@ -329,11 +331,16 @@ public partial class MainWindow : Window
 
 
     }
+
     private void MoveSpaceShip()
     {
-        Canvas.SetLeft(_player!.Sprite!, _player.X);
-        Canvas.SetTop(_player.Sprite!, _player.Y + 70);
+        if (!_player!.IsDestroyed)
+        {
+            Canvas.SetLeft(_player!.Sprite!, _player.X);
+            Canvas.SetTop(_player.Sprite!, _player.Y + 70);
+        }
     }
+
 
     private void MoveEnemies()
     {
@@ -341,6 +348,11 @@ public partial class MainWindow : Window
 
         foreach (var enemy in _enemies)
         {
+            if (enemy.IsDestroyed)
+            {
+                _gameCanvas!.Children.Remove(enemy.Sprite!);
+                continue;
+            }
             var x = Canvas.GetLeft(enemy.Sprite!);
             var moveSpeed = _moveSpeed * _invadersDirection;
 
@@ -355,6 +367,10 @@ public partial class MainWindow : Window
 
         foreach (var enemy in _enemies)
         {
+            if (enemy.IsDestroyed)
+            {
+                continue;
+            }
             var x = Canvas.GetLeft(enemy.Sprite!);
             var y = Canvas.GetTop(enemy.Sprite!);
             var moveSpeed = _moveSpeed * _invadersDirection;
@@ -461,51 +477,81 @@ public partial class MainWindow : Window
             // Verificar colisão com inimigos
             foreach (var enemy in _enemies)
             {
-                if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
+                if (enemy.IsDestroyed == false)
                 {
-                    _explosionSound.Play(1);
-                    _viewModel.UpdateScore(enemy.Score);
-                    // _viewModel.UpdateScore(400);
-                    this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
-                    this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
-                    _gameCanvas!.Children.Remove(enemy.Sprite!);
-                    _enemies.Remove(enemy);
-                    _gameCanvas.Children.Remove(bullet.Sprite!);
-                    _bullets.Remove(bullet);
-                    bulletTimer.Stop(); // Parar o timer da bala
-                    if (isPlayerBullet)
+                    if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                     {
+                        _explosionSound.Play(1);
+                        _viewModel.UpdateScore(enemy.Score);
+                        // _viewModel.UpdateScore(400);
+                        this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
+                        this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
+
+                        enemy.IsDestroyed = true;
+                        enemy.Sprite!.Source = this.FindControl<Image>("Destruction")!.Source;
+
+                        // Iniciar o timer para remover o inimigo após 1 segundo
+                        var removeEnemyTimer = new DispatcherTimer
+                        {
+                            Interval = TimeSpan.FromSeconds(200)
+                        };
+                        removeEnemyTimer.Tick += (_, _) =>
+                        {
+                            _gameCanvas!.Children.Remove(enemy.Sprite!);
+                            _enemies.Remove(enemy);
+                            removeEnemyTimer.Stop();
+                        };
+                        removeEnemyTimer.Start();
+
+                        _gameCanvas!.Children.Remove(bullet.Sprite!);
+                        _bullets.Remove(bullet);
+                        bulletTimer.Stop(); // Parar o timer da bala
                         _canShoot = true;
+
+                        if (_enemies.Count == 0)
+                        {
+                            GenerateNewAliens();
+                        }
+                        break;
                     }
-                    if (_enemies.Count == 0)
-                    {
-                        GenerateNewAliens();
-                    }
-                    break;
+
                 }
             }
 
             //Colisão com o Ufo (OVNI)
-            if (CheckCollision(bullet.Sprite!, _ufo.Sprite!))
+            if (_ufo.Sprite != new Ufo().Sprite && _ufo.IsDestroyed == false)
             {
-                _explosionSound.Play(1);
+                if (CheckCollision(bullet.Sprite!, _ufo.Sprite!))
+                {
+                    _explosionSound.Play(1);
+                    var randomScore = new Random().Next(10, 51) * 10;
+                    _viewModel.UpdateScore(randomScore);
 
-                // Atualizar a pontuação com um valor randômico entre 100 e 500
-                int randomScore = new Random().Next(100, 501);
-                _viewModel.UpdateScore(randomScore);
+                    this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
+                    this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
+                
+                    _ufo.IsDestroyed = true;
+                    _ufo.Sprite!.Source = this.FindControl<Image>("UFODestroyer")!.Source;
 
-                // Atualizar o texto da pontuação na interface do usuário
-                this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
+                    // Iniciar o timer para remover o inimigo após 1 segundo
+                    var removeUfoTimer = new DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromSeconds(1)
+                    };
+                    removeUfoTimer.Tick += (_, _) =>
+                    {
+                        _gameCanvas!.Children.Remove(_ufo.Sprite!);
+                        removeUfoTimer.Stop();
+                    };
+                    removeUfoTimer.Start();
 
-                // Remover o OVNI da tela
-                _gameCanvas!.Children.Remove(_ufo.Sprite!);
-
-                // Remover a bala da tela
-                _gameCanvas.Children.Remove(bullet.Sprite!);
-                _bullets.Remove(bullet);
-                bulletTimer.Stop(); // Parar o timer da bala
-                _canShoot = true;
+                    _gameCanvas!.Children.Remove(bullet.Sprite!);
+                    _bullets.Remove(bullet);
+                    bulletTimer.Stop(); // Parar o timer da bala
+                    _canShoot = true;
+                }
             }
+
         }
         else
         {
@@ -515,6 +561,31 @@ public partial class MainWindow : Window
                 _explosionSound.Play(1);
                 _viewModel.LifeUpdate(-1);
                 this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
+
+                // Substituir o sprite atual pelo sprite de destruição
+                _gameCanvas!.Children.Remove(_player.Sprite!);
+                _player.Sprite!.Source = this.FindControl<Image>("SpaceShipDestroyer")!.Source;
+                _gameCanvas!.Children.Add(_player.Sprite);
+                _player.IsDestroyed = true;
+                _player.X = 350;
+                Canvas.SetLeft(_player!.Sprite!, _player.X);
+
+
+                // Iniciar o timer para remover o jogador após 1 segundo
+                var removePlayerTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(1)
+                };
+                removePlayerTimer.Tick += (_, _) =>
+                {
+                    _gameCanvas!.Children.Remove(_player.Sprite!);
+                    _player.IsDestroyed = false;
+                    _player.Sprite.Source = this.FindControl<Image>("SpaceShip")!.Source;
+                    _gameCanvas!.Children.Add(_player.Sprite);
+                    removePlayerTimer.Stop();
+                };
+                removePlayerTimer.Start();
+
                 _gameCanvas!.Children.Remove(bullet.Sprite!);
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
