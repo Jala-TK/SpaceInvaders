@@ -65,7 +65,7 @@ namespace SpaceInvadersMVVM.ViewModels
         
         private void MoveRight()
         {
-            if (Player.X + PlayerSpeed <= 800 - Player.Sprite!.Width) 
+            if (Player.X + PlayerSpeed <= 1280 - Player.Sprite!.Width) 
             {
                 Player.X += PlayerSpeed;
             }

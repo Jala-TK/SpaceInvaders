@@ -27,7 +27,7 @@ public partial class MainWindow : Window
     private bool possibleStart;
     private bool _playGame;
     private double _moveSpeed;
-    private double _moveSpeedDefault = 4.0;
+    private double _moveSpeedDefault = 8.0;
     private List<Invader> _enemies = [];
     private List<Barrier> _shields = [];
     private List<Bullet> _bullets = [];
@@ -148,11 +148,13 @@ public partial class MainWindow : Window
         timer.Tick += (_, _) =>
         {
             
-            _moveUfoSound.Play(1);
-
             if (_ufo.IsDestroyed)
             {
                 _gameCanvas!.Children.Remove(_ufo.Sprite!);
+            }
+            else
+            {
+                _moveUfoSound.Play(1);
             }
             // Verificar se a nave do jogador está mostrando na tela
             if (_player != null && _gameCanvas != null &&
@@ -215,7 +217,7 @@ public partial class MainWindow : Window
             var barrier = new Barrier();
             barrier.Sprite!.Source = this.FindControl<Image>("Shield")?.Source;
 
-            Canvas.SetLeft(barrier.Sprite, i * (800.00 / numShields) + shieldMargin);
+            Canvas.SetLeft(barrier.Sprite, i * (1280.00 / numShields) + shieldMargin);
             Canvas.SetTop(barrier.Sprite, 600 - barrier.Sprite.Height - 100 + 70);
 
             _gameCanvas!.Children.Add(barrier.Sprite);

@@ -103,7 +103,7 @@ namespace SpaceInvadersMVVM.ViewModels
                 var data = line.Split(',');
                 if (data.Length >= 3)
                 {
-                    scores.Add(new Score(data[0], int.Parse(data[1]), DateTime.Parse(data[2]).Date));
+                    scores.Add(new Score(data[0], int.Parse(data[1]), DateTime.Parse(data[2])));
                 }
             }
 

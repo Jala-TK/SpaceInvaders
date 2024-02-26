@@ -8,8 +8,8 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="SpaceInvadersMVVM"
-        Width="800" Height="700"
-        MinWidth="800" MinHeight="700" MaxWidth="800" MaxHeight="700">
+        Width="1280" Height="720"
+        MinWidth="1280" MinHeight="720" MaxWidth="1280" MaxHeight="720">
 
 
         <Canvas Name="GameCanvas">
