@@ -18,6 +18,7 @@ public partial class MainWindow : Window
 {
     private Canvas? _gameCanvas;
     private Player? _player;
+    private Ufo _ufo = new Ufo();
     private bool _canShoot = true;
     private bool _gameOn;
     private bool _playGame;
@@ -101,12 +102,77 @@ public partial class MainWindow : Window
             _moveEnemiesSound.Play(1);
         };
         _timer.Start();
+
+        //Ativar OVNI
+        Task.Delay(TimeSpan.FromSeconds(20)).ContinueWith(_ =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                ActivateUFO();
+            });
+        });
+    }
+    private void ActivateUFO()
+    {
+        // Exibir o OVNI na tela
+        _ufo.Sprite!.IsVisible = true;
+
+        // Definir a posição inicial do OVNI (por exemplo, no topo da tela)
+        Canvas.SetLeft(_ufo.Sprite!, 0);
+        Canvas.SetTop(_ufo.Sprite!, 0);
+
+        // Iniciar o movimento do OVNI
+        MoveUFO();
+    }
+    private void MoveUFO()
+    {
+
+        var timer = new DispatcherTimer();
+        timer.Interval = TimeSpan.FromMilliseconds(20); // Intervalo de tempo para o movimento
+        timer.Tick += (_, _) =>
+        {
+            // Verificar se a nave do jogador está mostrando na tela
+            if (_player != null && _gameCanvas != null &&
+                Canvas.GetLeft(_player.Sprite) < _gameCanvas.Bounds.Width &&
+                Canvas.GetLeft(_player.Sprite) + _player.Sprite.Width > 0 &&
+                Canvas.GetTop(_player.Sprite) < _gameCanvas.Bounds.Height &&
+                Canvas.GetTop(_player.Sprite) + _player.Sprite.Height > 0)
+            {
+                // Mover o OVNI para a direita
+                Canvas.SetLeft(_ufo.Sprite!, Canvas.GetLeft(_ufo.Sprite!) + 3); // Ajuste a velocidade 
+
+                // Verificar se o OVNI saiu da tela
+                if (Canvas.GetLeft(_ufo.Sprite!) > _gameCanvas.Bounds.Width)
+                {
+                    // Remover o OVNI da tela
+                    _ufo.Sprite!.IsVisible = false;
+                    timer.Stop(); // Parar o movimento do OVNI
+                }
+            }
+        };
+        timer.Start();
+
+        // Ativar o OVNI a cada 2 minutos
+        var activationTimer = new DispatcherTimer();
+        activationTimer.Interval = TimeSpan.FromSeconds(30);
+        activationTimer.Tick += (_, _) =>
+        {
+            if (!_gameOn)
+                return;
+
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                ActivateUFO();
+            });
+        };
+        activationTimer.Start();
     }
 
     private void InitializeGameComponents()
     {
         _backgroundSound.PlayInLoop(1);
 
+        _ufo.Sprite = this.FindControl<Image>("UFO");
         _playGame = true;
         _gameCanvas = this.FindControl<Canvas>("GameCanvas");
         _player = _viewModel.Player;
@@ -128,7 +194,7 @@ public partial class MainWindow : Window
             barrier.Sprite!.Source = this.FindControl<Image>("Shield")?.Source;
 
             Canvas.SetLeft(barrier.Sprite, i * (800.00 / numShields) + shieldMargin);
-            Canvas.SetTop(barrier.Sprite, 600 - barrier.Sprite.Height - 100);
+            Canvas.SetTop(barrier.Sprite, 600 - barrier.Sprite.Height - 100 + 70);
 
             _gameCanvas!.Children.Add(barrier.Sprite);
             _shields.Add(barrier);
@@ -220,7 +286,7 @@ public partial class MainWindow : Window
                 }
 
                 Canvas.SetLeft(enemy.Sprite, col * (enemy.Sprite.Width + enemyMargin));
-                Canvas.SetTop(enemy.Sprite, row * (enemy.Sprite.Height + enemyMargin));
+                Canvas.SetTop(enemy.Sprite, row * (enemy.Sprite.Height + enemyMargin) + 70);
 
                 _gameCanvas?.Children.Add(enemy.Sprite);
                 _enemies.Add(enemy);
@@ -266,7 +332,7 @@ public partial class MainWindow : Window
     private void MoveSpaceShip()
     {
         Canvas.SetLeft(_player!.Sprite!, _player.X);
-        Canvas.SetTop(_player.Sprite!, _player.Y);
+        Canvas.SetTop(_player.Sprite!, _player.Y + 70);
     }
 
     private void MoveEnemies()
@@ -388,6 +454,8 @@ public partial class MainWindow : Window
 
     private void CheckBulletCollision(Bullet bullet, bool isPlayerBullet, DispatcherTimer bulletTimer)
     {
+        // Verificar colisão com o OVNI
+      
         if (isPlayerBullet)
         {
             // Verificar colisão com inimigos
@@ -415,6 +483,28 @@ public partial class MainWindow : Window
                     }
                     break;
                 }
+            }
+
+            //Colisão com o Ufo (OVNI)
+            if (CheckCollision(bullet.Sprite!, _ufo.Sprite!))
+            {
+                _explosionSound.Play(1);
+
+                // Atualizar a pontuação com um valor randômico entre 100 e 500
+                int randomScore = new Random().Next(100, 501);
+                _viewModel.UpdateScore(randomScore);
+
+                // Atualizar o texto da pontuação na interface do usuário
+                this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
+
+                // Remover o OVNI da tela
+                _gameCanvas!.Children.Remove(_ufo.Sprite!);
+
+                // Remover a bala da tela
+                _gameCanvas.Children.Remove(bullet.Sprite!);
+                _bullets.Remove(bullet);
+                bulletTimer.Stop(); // Parar o timer da bala
+                _canShoot = true;
             }
         }
         else

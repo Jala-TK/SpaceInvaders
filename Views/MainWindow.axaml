@@ -8,16 +8,18 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="SpaceInvadersMVVM"
-        Width="800" Height="600">
+        Width="800" Height="700">
 
 
         <Canvas Name="GameCanvas">
                 <Canvas.Background>
                         <ImageBrush Source="/Assets/Sprites/Stars.gif"/>
                 </Canvas.Background>
-                <Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
                 
-                <Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV1.png"/>
+			<Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
+			<Image x:Name="UFO" IsVisible="False" Source="/Assets/Sprites/saucer0.gif"/>
+
+			<Image x:Name="Enemy1" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV1.png"/>
                 <Image x:Name="Enemy1A" IsVisible="False" Source="/Assets/Sprites/aliens/alien40pointV2.png"/>
                 
                 <Image x:Name="Enemy2" IsVisible="False" Source="/Assets/Sprites/aliens/alien20pointV1.png"/>
