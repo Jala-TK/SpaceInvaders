@@ -113,7 +113,7 @@ public partial class MainWindow : Window
     {
         var ufo = new Ufo();
         ufo.Sprite!.Source = this.FindControl<Image>("UFO")?.Source;
-    
+
         // Definir a posição inicial do OVNI (por exemplo, no topo da tela)
         Canvas.SetLeft(ufo.Sprite!, 0);
         Canvas.SetTop(ufo.Sprite!, 0);
@@ -476,7 +476,7 @@ public partial class MainWindow : Window
     private void CheckBulletCollision(Bullet bullet, bool isPlayerBullet, DispatcherTimer bulletTimer)
     {
         // Verificar colisão com o OVNI
-      
+
         if (isPlayerBullet)
         {
             // Verificar colisão com inimigos
@@ -534,7 +534,7 @@ public partial class MainWindow : Window
 
                     this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
                     this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
-                
+
                     _ufo.IsDestroyed = true;
                     _ufo.Sprite!.Source = this.FindControl<Image>("UFODestroyer")!.Source;
 
@@ -595,6 +595,20 @@ public partial class MainWindow : Window
                 _bullets.Remove(bullet);
                 bulletTimer.Stop(); // Parar o timer da bala
                 _canShoot = true;
+            }
+        }
+
+        //Colisão dos inimigos com o player
+        foreach (var enemy in _enemies)
+        {
+            if (enemy.IsDestroyed == false)
+            {
+                if (CheckCollision(enemy.Sprite!, _player!.Sprite!))
+                {
+                    _explosionSound.Play(1);
+                    _viewModel.LifeUpdate(-(_player.Life));
+                    break;
+                }
             }
         }
 
