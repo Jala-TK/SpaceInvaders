@@ -157,8 +157,10 @@ public partial class MainWindow : Window
         timer.Start();
 
         // Ativar o OVNI a cada 2 minutos
-        var activationTimer = new DispatcherTimer();
-        activationTimer.Interval = TimeSpan.FromSeconds(30);
+        var activationTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(120)
+        };
         activationTimer.Tick += (_, _) =>
         {
             if (!_gameOn)
