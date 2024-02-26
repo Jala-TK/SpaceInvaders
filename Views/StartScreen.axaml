@@ -18,15 +18,25 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Título -->
-        <TextBlock Text="Space Invaders"
-                   Grid.Row="0" Grid.Column="1"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="46"
-                   Margin="0,100,0,0"
-                   />
+        <Image
+            Grid.Row="0" Grid.Column="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Source="/Assets/Sprites/others/logo.png"
+            Width="300"
+            Margin="0,50,0,0"
+        />
         
+        <Image
+            Grid.Row="1" Grid.Column="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Source="/Assets/Sprites/others/points.png"
+            Width="250"
+            Margin="0,50,0,0"
+        />
+        
+
         <!-- HighScores -->
         <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right">
             <TextBlock Text="HighScores" FontSize="16" FontWeight="Bold" Margin="0,50,20,5"/>
@@ -64,6 +74,8 @@
         <!-- Botão Começar -->
         <Button Grid.Row="1" Grid.Column="0" Content="Começar" HorizontalAlignment="Center" Click="StartButton_Click"/>
         
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="Use as setas direcionais para se mover e a barra de espaço para atirar." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
         <!-- Mensagem de Pressionar Enter -->
         <TextBlock Grid.Row="2" Grid.Column="1" Text="Pressione Enter ou use o botão para iniciar o jogo" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
     </Grid>

@@ -17,6 +17,7 @@ public class SoundFx : LibVLC
         File = file;
         Media = new Media(this, File);
         MediaPlayer = new MediaPlayer(Media);
+        
         Log += null;
         InitializeMediaPlayer();
 

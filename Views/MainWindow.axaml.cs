@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Avalonia.Data;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
 
@@ -18,9 +19,12 @@ public partial class MainWindow : Window
 {
     private Canvas? _gameCanvas;
     private Player? _player;
-    private Ufo _ufo;
+    private Ufo _ufo = new();
+    private TextBlock _scoreTextBlock;
+    private TextBlock _playerLifeTextBlock;
     private bool _canShoot = true;
     private bool _gameOn;
+    private bool possibleStart;
     private bool _playGame;
     private double _moveSpeed;
     private double _moveSpeedDefault = 4.0;
@@ -34,9 +38,10 @@ public partial class MainWindow : Window
     private SoundFx _enemyBulletSound;
     private SoundFx _backgroundSound;
     private SoundFx _moveEnemiesSound;
+    private SoundFx _moveUfoSound;
     private DispatcherTimer? _enemyBulletTimer;
     public int AlienCount { get; private set; }
-    private readonly MainWindowViewModel _viewModel;
+    private MainWindowViewModel _viewModel;
     private StartScreen _startScreen;
     public MainWindow()
     {
@@ -44,28 +49,34 @@ public partial class MainWindow : Window
 #if DEBUG
         this.AttachDevTools();
 #endif
-        _ufo = new Ufo();
         _explosionSound = new SoundFx("explosion.wav");
         _playerBulletSound = new SoundFx("1.wav");
         _enemyBulletSound = new SoundFx("3.wav");
         _backgroundSound = new SoundFx("backgroundmusic.mpeg");
         _moveEnemiesSound = new SoundFx("6.wav");
-
-        _viewModel = new MainWindowViewModel();
-        DataContext = _viewModel;
-
-        _startScreen = new StartScreen(_viewModel);
-        Content = _startScreen;
-        _startScreen.StartGameClicked += StartScreen_StartGameClicked!;
-
-
+        _moveUfoSound = new SoundFx("ufo_lowpitch.wav");
+        
+        NewGame();
+        
         KeyDown += KeyStart;
 
     }
 
+    private void NewGame()
+    {
+        _viewModel = new MainWindowViewModel();
+        _player = new Player();
+        DataContext = _viewModel;
+
+        _startScreen = new StartScreen(_viewModel);
+        Content = _startScreen;
+        possibleStart = true;
+        _startScreen.StartGameClicked += StartScreen_StartGameClicked!;
+    }
+
     private void KeyStart(object? sender, KeyEventArgs e)
     {
-        if (_gameOn == false)
+        if (possibleStart)
         {
             if (e.Key == Key.Enter)
             {
@@ -77,12 +88,16 @@ public partial class MainWindow : Window
 
     private void StartScreen_StartGameClicked(object sender, EventArgs e)
     {
-        StartGame();
+        if (possibleStart)
+        {
+           StartGame();
+        }
     }
 
 
     private void StartGame()
     {
+        possibleStart = false;
         _gameOn = true;
 
         ClearWindow();
@@ -116,7 +131,7 @@ public partial class MainWindow : Window
 
         // Definir a posição inicial do OVNI (por exemplo, no topo da tela)
         Canvas.SetLeft(ufo.Sprite!, 0);
-        Canvas.SetTop(ufo.Sprite!, 0);
+        Canvas.SetTop(ufo.Sprite!, 20);
 
         // Iniciar o movimento do OVNI
         _gameCanvas?.Children.Add(ufo.Sprite);
@@ -132,6 +147,9 @@ public partial class MainWindow : Window
         };
         timer.Tick += (_, _) =>
         {
+            
+            _moveUfoSound.Play(1);
+
             if (_ufo.IsDestroyed)
             {
                 _gameCanvas!.Children.Remove(_ufo.Sprite!);
@@ -208,20 +226,50 @@ public partial class MainWindow : Window
         AlienCount = _enemies.Count;
 
         KeyDown += OnKeyPressed;
+        //
+
+        _scoreTextBlock = new TextBlock
+        {
+            FontFamily = new FontFamily("Electron Pulse"),
+            FontSize = 16,
+            TextAlignment = TextAlignment.Left
+        };
+        Canvas.SetLeft(_scoreTextBlock, 5);
+        Canvas.SetTop(_scoreTextBlock, 5);
+        _scoreTextBlock.Bind(TextBlock.TextProperty, new Binding("Score") { Source = _viewModel });
+
+        _playerLifeTextBlock = new TextBlock
+        {
+            FontFamily = new FontFamily("Electron Pulse"),
+            FontSize = 20,
+            TextAlignment = TextAlignment.Right
+        };
+        Canvas.SetRight(_playerLifeTextBlock, 5);
+        Canvas.SetTop(_playerLifeTextBlock, 5);
+        _playerLifeTextBlock.Bind(TextBlock.TextProperty, new Binding("PlayerLife") { Source = _viewModel });
+
+        _gameCanvas!.Children.Add(_scoreTextBlock);
+        _gameCanvas!.Children.Add(_playerLifeTextBlock);
+
 
         // Inicialize o conteúdo do jogo
         _viewModel.GameOver += (_, _) =>
         {
             // Lógica para mostrar a tela de game over na janela atual
             _backgroundSound.Stop();
-            ClearWindow();
             StopGame();
             var gameOverContent = new StackPanel
             {
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             };
-            gameOverContent.Children.Add(new TextBlock { Text = "Game Over \n" + _viewModel.Score, FontSize = 24 });
+            var text = new TextBlock
+            {
+                Text = "Game Over \n" + _viewModel.Score, FontSize = 24,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+
+            };
+            gameOverContent.Children.Add(text);
             Content = gameOverContent;
 
             var nicknameTextBlock = new TextBlock()
@@ -229,7 +277,6 @@ public partial class MainWindow : Window
                 Text = "\nSalve seu score:",
                 Width = 200,
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                // PlaceholderText = "Enter your nickname"
             };
             gameOverContent.Children.Add(nicknameTextBlock);
 
@@ -250,15 +297,31 @@ public partial class MainWindow : Window
             };
             saveButton.Click += (_, _) =>
             {
-                _viewModel.SaveScoreToCsv(nicknameTextBox.Text!);
-
-                Content = _startScreen;
-
+                if (!string.IsNullOrEmpty(nicknameTextBox.Text))
+                {
+                    _viewModel.SaveScoreToCsv(nicknameTextBox.Text);
+                    NewGame();
+                }
             };
+
             gameOverContent.Children.Add(saveButton);
+            
+            var menuButton = new Button
+            {
+                Content = "Voltar para o menu",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 20, 0, 0)
+            };
+            menuButton.Click += (_, _) =>
+            {
+                NewGame();
+            };
+
+            gameOverContent.Children.Add(menuButton);
         };
     }
-
+    
+    
     private void GenerateNewAliens()
     {
         _moveSpeedDefault++;
@@ -293,7 +356,7 @@ public partial class MainWindow : Window
                 }
 
                 Canvas.SetLeft(enemy.Sprite, col * (enemy.Sprite.Width + enemyMargin));
-                Canvas.SetTop(enemy.Sprite, row * (enemy.Sprite.Height + enemyMargin) + 70);
+                Canvas.SetTop(enemy.Sprite, row * (enemy.Sprite.Height + enemyMargin) + 90);
 
                 _gameCanvas?.Children.Add(enemy.Sprite);
                 _enemies.Add(enemy);
@@ -342,7 +405,7 @@ public partial class MainWindow : Window
         if (!_player!.IsDestroyed)
         {
             Canvas.SetLeft(_player!.Sprite!, _player.X);
-            Canvas.SetTop(_player.Sprite!, _player.Y + 70);
+            Canvas.SetTop(_player.Sprite!, _player.Y);
         }
     }
 
@@ -489,8 +552,6 @@ public partial class MainWindow : Window
                         _explosionSound.Play(1);
                         _viewModel.UpdateScore(enemy.Score);
                         // _viewModel.UpdateScore(400);
-                        this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
-                        this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
 
                         enemy.IsDestroyed = true;
                         enemy.Sprite!.Source = this.FindControl<Image>("Destruction")!.Source;
@@ -532,9 +593,6 @@ public partial class MainWindow : Window
                     var randomScore = new Random().Next(10, 51) * 10;
                     _viewModel.UpdateScore(randomScore);
 
-                    this.FindControl<TextBlock>("Score")!.Text = _viewModel.Score;
-                    this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
-
                     _ufo.IsDestroyed = true;
                     _ufo.Sprite!.Source = this.FindControl<Image>("UFODestroyer")!.Source;
 
@@ -565,21 +623,17 @@ public partial class MainWindow : Window
             {
                 _explosionSound.Play(1);
                 _viewModel.LifeUpdate(-1);
-                this.FindControl<TextBlock>("PlayerLife")!.Text = _viewModel.PlayerLife;
 
                 // Substituir o sprite atual pelo sprite de destruição
                 _gameCanvas!.Children.Remove(_player.Sprite!);
                 _player.Sprite!.Source = this.FindControl<Image>("SpaceShipDestroyer")!.Source;
                 _gameCanvas!.Children.Add(_player.Sprite);
                 _player.IsDestroyed = true;
-                _player.X = 350;
-                Canvas.SetLeft(_player!.Sprite!, _player.X);
-
 
                 // Iniciar o timer para remover o jogador após 1 segundo
                 var removePlayerTimer = new DispatcherTimer
                 {
-                    Interval = TimeSpan.FromSeconds(1)
+                    Interval = TimeSpan.FromMilliseconds(200)
                 };
                 removePlayerTimer.Tick += (_, _) =>
                 {
@@ -699,9 +753,15 @@ public partial class MainWindow : Window
 
     public void StopGame()
     {
-        _playGame = false;
+        _gameOn = false;
+        _backgroundSound.Stop();
+        _playerBulletSound.Stop();
+        _enemyBulletSound.Stop();
+        _explosionSound.Stop();
+        _moveEnemiesSound.Stop();
         _timer?.Stop();
         _enemyBulletTimer?.Stop();
+        KeyDown -= OnKeyPressed;
 
         // Remova todos os inimigos da tela
         foreach (var enemy in _enemies)
@@ -717,6 +777,12 @@ public partial class MainWindow : Window
         }
         _bullets.Clear();
 
+        // Remova o jogador da tela
+        if (_player != null)
+        {
+            _gameCanvas?.Children.Remove(_player.Sprite!);
+        }
+
         // Remova todos os escudos da tela
         foreach (var shield in _shields)
         {
@@ -724,15 +790,24 @@ public partial class MainWindow : Window
         }
         _shields.Clear();
 
+        // Remova o OVNI da tela
+        if (_ufo.Sprite != null)
+        {
+            _gameCanvas?.Children.Remove(_ufo.Sprite!);
+        }
+
         // Limpe o conteúdo do canvas do jogo
         _gameCanvas?.Children.Clear();
+
+        // Defina o conteúdo da janela como nulo
+        Content = null;
 
     }
 
     public void ClearWindow()
     {
-        Content = new StackPanel();
         StopGame();
+        Content = new StackPanel();
     }
 
 

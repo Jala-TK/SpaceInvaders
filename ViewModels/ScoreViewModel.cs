@@ -13,7 +13,8 @@ namespace SpaceInvadersMVVM.ViewModels
         private int _score;
         private int _lifeScore;
         public string Score => "Score: " + _score;
-        public string PlayerLife => "Lives: " + Player.Life;
+        public string PlayerLife => string.Join("", Enumerable.Repeat("❤️ ", Player.Life));
+
         public void UpdateScore(int points)
         {
             _score += points;

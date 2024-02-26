@@ -10,8 +10,8 @@ namespace SpaceInvadersMVVM.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-        public Player Player { get; set; } = new();
-        private double PlayerSpeed { get; set; } = 5.0;
+        public Player Player { get; set; }
+        private double PlayerSpeed { get; set; }
         
         private ObservableCollection<Score> _scores = null!;
 
@@ -22,7 +22,7 @@ namespace SpaceInvadersMVVM.ViewModels
         }
         
         private readonly Subject<int> _playerLifeSubject = new Subject<int>();
-        public IObservable<int> PlayerLifeObservable => _playerLifeSubject;
+        private IObservable<int> PlayerLifeObservable => _playerLifeSubject;
         public ReactiveCommand<Unit, Unit> MoveLeftCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> MoveRightCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> ShootCommand { get; private set; }
@@ -30,6 +30,8 @@ namespace SpaceInvadersMVVM.ViewModels
         
         public MainWindowViewModel()
         {
+            Player = new Player();
+            PlayerSpeed = 5.0;
             Scores = LoadScoresFromCsv();
             // Configurar comandos
             MoveLeftCommand = ReactiveCommand.Create(MoveLeft);
@@ -73,6 +75,7 @@ namespace SpaceInvadersMVVM.ViewModels
         {
             
         }
+        
         
         private void ShowGameOverScreen()
         {

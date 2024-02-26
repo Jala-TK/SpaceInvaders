@@ -8,12 +8,13 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="SpaceInvadersMVVM"
-        Width="800" Height="700">
+        Width="800" Height="700"
+        MinWidth="800" MinHeight="700" MaxWidth="800" MaxHeight="700">
 
 
         <Canvas Name="GameCanvas">
                 <Canvas.Background>
-                        <ImageBrush Source="/Assets/Sprites/Stars.gif"/>
+                        <ImageBrush Source="/Assets/Sprites/others/stars.jpg" Stretch="Fill"/>
                 </Canvas.Background>
                 
                 <Image x:Name="SpaceShip" IsVisible="False" Source="/Assets/Sprites/player.gif"/>
@@ -44,8 +45,8 @@
                 <Image x:Name="Boss" IsVisible="False" Source="/Assets/Sprites/saucer0.gif"/>
                 <Image x:Name="Bala" IsVisible="False" Source="/Assets/Sprites/bullet.gif"/>
 
-                <TextBlock x:Name="Score" Canvas.Left="690" Canvas.Bottom="0" Text="{Binding Score}"/>
-                <TextBlock x:Name="PlayerLife" Canvas.Left="50" Canvas.Bottom="0" Text="{Binding PlayerLife}"/>
+                <!-- <TextBlock x:Name="Score" FontFamily="Electron Pulse" FontSize="16" Canvas.Left="5" Canvas.Top="5" Text="{Binding Score}"/> -->
+                <!-- <TextBlock x:Name="PlayerLife" FontFamily="Electron Pulse" FontSize="20" Canvas.Right="5" Canvas.Top="5" Text="{Binding PlayerLife}"/> -->
 
         </Canvas>
         
