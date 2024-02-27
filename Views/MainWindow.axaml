@@ -3,10 +3,10 @@
         xmlns:vm="using:SpaceInvadersMVVM.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="SpaceInvadersMVVM.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/Sprites/others/logo.ico"
         Title="SpaceInvadersMVVM"
         Width="1280" Height="720"
         MinWidth="1280" MinHeight="720" MaxWidth="1280" MaxHeight="720">
@@ -42,12 +42,7 @@
                 <Image x:Name="Shield4" IsVisible="False" Source="/Assets/Sprites/shield/shield5.png"/>
 
                 
-                <Image x:Name="Boss" IsVisible="False" Source="/Assets/Sprites/saucer0.gif"/>
                 <Image x:Name="Bala" IsVisible="False" Source="/Assets/Sprites/bullet.gif"/>
-
-                <!-- <TextBlock x:Name="Score" FontFamily="Electron Pulse" FontSize="16" Canvas.Left="5" Canvas.Top="5" Text="{Binding Score}"/> -->
-                <!-- <TextBlock x:Name="PlayerLife" FontFamily="Electron Pulse" FontSize="20" Canvas.Right="5" Canvas.Top="5" Text="{Binding PlayerLife}"/> -->
-
         </Canvas>
         
         

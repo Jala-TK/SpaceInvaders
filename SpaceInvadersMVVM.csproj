@@ -23,8 +23,11 @@
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.20" />
   </ItemGroup>
  <ItemGroup>
-    <AvaloniaResource Update="Assets\">
+    <AvaloniaResource Update="Assets\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Update="Assets\highscore.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AvaloniaResource>
   </ItemGroup>
   <ItemGroup>
@@ -34,7 +37,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="Assets\**">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>
   <ItemGroup>

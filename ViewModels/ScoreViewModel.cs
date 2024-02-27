@@ -46,7 +46,9 @@ namespace SpaceInvadersMVVM.ViewModels
         public void SaveScoreToCsv(string nickname)
         {
             var date = DateTime.Now.ToString("yyyy-MM-dd");
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "highscore.csv");
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string assetsPath = Path.GetFullPath(Path.Combine(currentDirectory, "..", "..", "..", "Assets"));
+            string filePath = Path.Combine(assetsPath, "highscore.csv");
             bool found = false;
 
             // Cria o arquivo CSV se não existir e escreve o cabeçalho
@@ -76,7 +78,7 @@ namespace SpaceInvadersMVVM.ViewModels
             }
 
             // Se o nickname não foi encontrado, adiciona um novo registro
-            if (!found)
+            if (!found && !string.IsNullOrEmpty(nickname))
             {
                 lines.Add($"{nickname},{_score},{date}");
             }
@@ -87,7 +89,9 @@ namespace SpaceInvadersMVVM.ViewModels
 
         public ObservableCollection<Score> LoadScoresFromCsv()
         {
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "highscore.csv");
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string assetsPath = Path.GetFullPath(Path.Combine(currentDirectory, "..", "..", "..", "Assets"));
+            string filePath = Path.Combine(assetsPath, "highscore.csv");
 
             // Verifica se o arquivo CSV existe
             if (!File.Exists(filePath))

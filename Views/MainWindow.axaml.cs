@@ -112,16 +112,25 @@ public partial class MainWindow : Window
         };
         _timer.Tick += (_, _) =>
         {
-            _moveEnemiesSound.Play(1);
+            Console.WriteLine($"Aliens: {_enemies.Count} ou {AlienCount}");
+
+            if (AlienCount <= 1)
+            {
+                GenerateNewAliens();
+            }
+            _moveEnemiesSound.Play(10);
             MoveEnemies();
-            _moveEnemiesSound.Play(1);
+            _moveEnemiesSound.Play(10);
         };
         _timer.Start();
 
         //Ativar OVNI
         Task.Delay(TimeSpan.FromSeconds(20)).ContinueWith(_ =>
         {
-            Dispatcher.UIThread.InvokeAsync(GenerateUfo);
+            if (_gameOn)
+            {
+                Dispatcher.UIThread.InvokeAsync(GenerateUfo);
+            }
         });
     }
     private void GenerateUfo()
@@ -154,7 +163,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                _moveUfoSound.Play(1);
+                _moveUfoSound.Play(10);
             }
             // Verificar se a nave do jogador está mostrando na tela
             if (_player != null && _gameCanvas != null &&
@@ -326,6 +335,8 @@ public partial class MainWindow : Window
     
     private void GenerateNewAliens()
     {
+        _enemies = new List<Invader>();
+
         _moveSpeedDefault++;
         _moveSpeed = _moveSpeedDefault;
         const int rows = 5;
@@ -392,7 +403,8 @@ public partial class MainWindow : Window
                 {
                     var bulletX = _player!.X + (_player.Sprite!.Width / 2) - 10;
                     var bulletY = _player.Y;
-                    CreateBullet(bulletX, bulletY, 8, true);
+                    CreateBullet(bulletX, bulletY, 20, true);
+                    // CreateBullet(bulletX, bulletY, 8, true);
                     _canShoot = false; // Impede que o jogador atire novamente imediatamente
                 }
                 break;
@@ -483,13 +495,13 @@ public partial class MainWindow : Window
 
         if (!isPlayerBullet)
         {
-            _playerBulletSound.Play(1);
+            _playerBulletSound.Play(10);
 
             bullet.Sprite.RenderTransform = new RotateTransform(180);
         }
         else
         {
-            _enemyBulletSound.Play(1);
+            _enemyBulletSound.Play(10);
 
         }
 
@@ -551,7 +563,7 @@ public partial class MainWindow : Window
                 {
                     if (CheckCollision(bullet.Sprite!, enemy.Sprite!))
                     {
-                        _explosionSound.Play(1);
+                        _explosionSound.Play(10);
                         _viewModel.UpdateScore(enemy.Score);
                         // _viewModel.UpdateScore(400);
 
@@ -561,12 +573,13 @@ public partial class MainWindow : Window
                         // Iniciar o timer para remover o inimigo após 1 segundo
                         var removeEnemyTimer = new DispatcherTimer
                         {
-                            Interval = TimeSpan.FromSeconds(200)
+                            Interval = TimeSpan.FromMilliseconds(100)
                         };
                         removeEnemyTimer.Tick += (_, _) =>
                         {
                             _gameCanvas!.Children.Remove(enemy.Sprite!);
                             _enemies.Remove(enemy);
+                            AlienCount --;
                             removeEnemyTimer.Stop();
                         };
                         removeEnemyTimer.Start();
@@ -575,11 +588,6 @@ public partial class MainWindow : Window
                         _bullets.Remove(bullet);
                         bulletTimer.Stop(); // Parar o timer da bala
                         _canShoot = true;
-
-                        if (_enemies.Count == 0)
-                        {
-                            GenerateNewAliens();
-                        }
                         break;
                     }
 
@@ -591,7 +599,7 @@ public partial class MainWindow : Window
             {
                 if (CheckCollision(bullet.Sprite!, _ufo.Sprite!))
                 {
-                    _explosionSound.Play(1);
+                    _explosionSound.Play(10);
                     var randomScore = new Random().Next(10, 51) * 10;
                     _viewModel.UpdateScore(randomScore);
 
@@ -623,7 +631,7 @@ public partial class MainWindow : Window
             // Verificar colisão com jogador
             if (CheckCollision(bullet.Sprite!, _player!.Sprite!))
             {
-                _explosionSound.Play(1);
+                _explosionSound.Play(10);
                 _viewModel.LifeUpdate(-1);
 
                 // Substituir o sprite atual pelo sprite de destruição
@@ -661,7 +669,7 @@ public partial class MainWindow : Window
             {
                 if (CheckCollision(enemy.Sprite!, _player!.Sprite!))
                 {
-                    _explosionSound.Play(1);
+                    _explosionSound.Play(10);
                     _viewModel.LifeUpdate(-(_player.Life));
                     break;
                 }
@@ -755,6 +763,7 @@ public partial class MainWindow : Window
 
     public void StopGame()
     {
+        _playGame = false;
         _gameOn = false;
         _backgroundSound.Stop();
         _playerBulletSound.Stop();
