@@ -24,7 +24,7 @@ public partial class MainWindow : Window
     private TextBlock _playerLifeTextBlock;
     private bool _canShoot = true;
     private bool _gameOn;
-    private bool possibleStart;
+    private bool _possibleStart;
     private bool _playGame;
     private double _moveSpeed;
     private double _moveSpeedDefault = 8.0;
@@ -70,13 +70,13 @@ public partial class MainWindow : Window
 
         _startScreen = new StartScreen(_viewModel);
         Content = _startScreen;
-        possibleStart = true;
+        _possibleStart = true;
         _startScreen.StartGameClicked += StartScreen_StartGameClicked!;
     }
 
     private void KeyStart(object? sender, KeyEventArgs e)
     {
-        if (possibleStart)
+        if (_possibleStart)
         {
             if (e.Key == Key.Enter)
             {
@@ -88,7 +88,7 @@ public partial class MainWindow : Window
 
     private void StartScreen_StartGameClicked(object sender, EventArgs e)
     {
-        if (possibleStart)
+        if (_possibleStart)
         {
            StartGame();
         }
@@ -97,7 +97,7 @@ public partial class MainWindow : Window
 
     private void StartGame()
     {
-        possibleStart = false;
+        _possibleStart = false;
         _gameOn = true;
 
         ClearWindow();
@@ -112,9 +112,7 @@ public partial class MainWindow : Window
         };
         _timer.Tick += (_, _) =>
         {
-            Console.WriteLine($"Aliens: {_enemies.Count} ou {AlienCount}");
-
-            if (AlienCount <= 1)
+            if (AlienCount <= 0)
             {
                 GenerateNewAliens();
             }
@@ -124,14 +122,19 @@ public partial class MainWindow : Window
         };
         _timer.Start();
 
-        //Ativar OVNI
-        Task.Delay(TimeSpan.FromSeconds(20)).ContinueWith(_ =>
+        // Ativar o OVNI a cada 2 minutos
+        var activationTimer = new DispatcherTimer
         {
-            if (_gameOn)
-            {
-                Dispatcher.UIThread.InvokeAsync(GenerateUfo);
-            }
-        });
+            Interval = TimeSpan.FromSeconds(20)
+        };
+        activationTimer.Tick += (_, _) =>
+        {
+            if (!_gameOn)
+                return;
+
+            Dispatcher.UIThread.InvokeAsync(GenerateUfo);
+        };
+        activationTimer.Start();
     }
     private void GenerateUfo()
     {
@@ -184,23 +187,7 @@ public partial class MainWindow : Window
             }
         };
         timer.Start();
-
-        // Ativar o OVNI a cada 2 minutos
-        var activationTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromSeconds(120)
-        };
-        activationTimer.Tick += (_, _) =>
-        {
-            if (!_gameOn)
-                return;
-
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                GenerateUfo();
-            });
-        };
-        activationTimer.Start();
+        
     }
 
     private void InitializeGameComponents()
@@ -241,7 +228,7 @@ public partial class MainWindow : Window
 
         _scoreTextBlock = new TextBlock
         {
-            FontFamily = new FontFamily("Electron Pulse"),
+            FontFamily = new FontFamily("Joystix Monospace"),
             FontSize = 16,
             TextAlignment = TextAlignment.Left
         };
@@ -251,7 +238,7 @@ public partial class MainWindow : Window
 
         _playerLifeTextBlock = new TextBlock
         {
-            FontFamily = new FontFamily("Electron Pulse"),
+            FontFamily = new FontFamily("Joystix Monospace"),
             FontSize = 20,
             TextAlignment = TextAlignment.Right
         };
@@ -341,7 +328,7 @@ public partial class MainWindow : Window
         _moveSpeed = _moveSpeedDefault;
         const int rows = 5;
         const int cols = 11;
-        double enemyMargin = 10;
+        const double enemyMargin = 10;
 
         for (var row = 0; row < rows; row++)
         {
