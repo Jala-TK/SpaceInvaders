@@ -4,72 +4,80 @@
              x:Class="SpaceInvadersMVVM.Views.StartScreen"
              x:DataType="viewmodels:MainWindowViewModel"
              FontFamily="Joystix Monospace">
-    
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
-        <Image
-            Grid.Row="0" Grid.Column="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Source="/Assets/Sprites/others/logo.png"
-            Width="300"
-            Margin="0,50,0,0"
-        />
-        
-        <Image
-            Grid.Row="1" Grid.Column="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Source="/Assets/Sprites/others/points.png"
-            Width="250"
-            Margin="0,50,0,0"
-        />
-        
+            <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Image
+                Grid.Row="0" Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Source="/Assets/Sprites/others/logo.png"
+                Width="300"
+                Margin="0,50,0,0"
+            />
+            
+            <Image
+                Grid.Row="1" Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Source="/Assets/Sprites/others/points.png"
+                Width="250"
+                Margin="0,50,0,0"
+            />
+            
 
-        <!-- HighScores -->
-        <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center">
-            <TextBlock Text="HighScores" FontSize="16" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,20,5"/>
-            <Grid Margin="0,10,20,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-        
-                <TextBlock Grid.Column="0" Text="Nome" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Text="Score" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="2" Text="Data" FontWeight="Bold" HorizontalAlignment="Center"/>
-            </Grid>
-            <ListBox ItemsSource="{Binding Scores}" Width="250" Height="300" Margin="0,10,20,0">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid ColumnDefinitions="*,*,*">
-                            <Label Grid.Column="0" FontSize="10" Content="{Binding Nickname}" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Column="1" FontSize="10" Content="{Binding ScoreValue}" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Column="2" FontSize="10" Content="{Binding GetDate}" HorizontalContentAlignment="Center"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </StackPanel>
+            <!-- HighScores -->
+            <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center">
+                <TextBlock Text="HighScores" FontSize="16" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,20,5"/>
+                <Grid Margin="0,10,20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+            
+                    <TextBlock Grid.Column="0" Text="Nome" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="Score" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="Data" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </Grid>
+                <ListBox ItemsSource="{Binding Scores}" Width="300" Height="350" Margin="0,10,20,0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*,*,*">
+                                <Label Grid.Column="0" FontSize="10" Content="{Binding Nickname}" HorizontalContentAlignment="Center"/>
+                                <Label Grid.Column="1" FontSize="10" Content="{Binding ScoreValue}" HorizontalContentAlignment="Center"/>
+                                <Label Grid.Column="2" FontSize="10" Content="{Binding GetDate}" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
 
-        
-        <!-- Botão Começar -->
-        <Button Grid.Row="1" Grid.Column="0" Content="Começar" HorizontalAlignment="Center" Click="StartButton_Click"/>
-        
-        <TextBlock Grid.Row="2" Grid.Column="1" Text="Use as setas direcionais para se mover e a barra de espaço para atirar." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            
+            <!-- Botão Começar -->
+            <Button Grid.Row="1" Grid.Column="0" FontSize="20" Content="Começar" HorizontalAlignment="Center" Click="StartButton_Click"/>
+            <Button Grid.Row="1" Grid.Column="0" FontSize="20" Content="Exit" HorizontalAlignment="Center" Margin="0,100,0,0" Click="ExitButton_Click"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <TextBlock Text="Use as setas direcionais para se mover e a barra de espaço para atirar." TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-        <!-- Mensagem de Pressionar Enter -->
-        <TextBlock Grid.Row="2" Grid.Column="1" Text="Pressione Enter ou use o botão para iniciar o jogo" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
+            <!-- Mensagem de Pressionar Enter -->
+            <TextBlock Text="Pressione Enter ou use o botão para iniciar o jogo"  
+                       TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,20,0,10"/>
+        </Grid>
     </Grid>
 </UserControl>
