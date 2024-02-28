@@ -326,7 +326,8 @@ public partial class MainWindow : Window
         _moveSpeed = _moveSpeedDefault;
         const int rows = 5;
         const int cols = 11;
-        const double enemyMargin = 10;
+        const double enemyMarginWidth = 25;
+        const double enemyMarginHeight = 10;
 
         for (var row = 0; row < rows; row++)
         {
@@ -353,8 +354,8 @@ public partial class MainWindow : Window
                         break;
                 }
 
-                Canvas.SetLeft(enemy.Sprite, col * (enemy.Sprite.Width + enemyMargin));
-                Canvas.SetTop(enemy.Sprite, row * (enemy.Sprite.Height + enemyMargin) + 90);
+                Canvas.SetLeft(enemy.Sprite, col * (enemy.Sprite.Width + enemyMarginWidth));
+                Canvas.SetTop(enemy.Sprite, row * (enemy.Sprite.Height + enemyMarginHeight) + 90);
 
                 _gameCanvas?.Children.Add(enemy.Sprite);
                 _enemies.Add(enemy);
