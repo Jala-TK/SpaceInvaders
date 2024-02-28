@@ -29,7 +29,7 @@ public class SoundFx : LibVLC
             return;
         }
 
-        MediaPlayer.Stop(); // Para a reprodução atual, se houver
+        MediaPlayer.Stop(); // Para a reprodução atual
 
         Task.Run(() =>
         {

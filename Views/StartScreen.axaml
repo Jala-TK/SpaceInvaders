@@ -4,23 +4,9 @@
              x:Class="SpaceInvadersMVVM.Views.StartScreen"
              x:DataType="viewmodels:MainWindowViewModel"
              FontFamily="Joystix Monospace">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-            <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            
+    <Grid RowDefinitions="Auto,*">
+        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,*">
+
             <Image
                 Grid.Row="0" Grid.Column="1"
                 HorizontalAlignment="Center"

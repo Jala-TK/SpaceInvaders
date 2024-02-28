@@ -33,15 +33,13 @@ namespace SpaceInvadersMVVM.ViewModels
             Player = new Player();
             PlayerSpeed = 8.0;
             Scores = LoadScoresFromCsv();
+            
             // Configurar comandos
             MoveLeftCommand = ReactiveCommand.Create(MoveLeft);
             MoveRightCommand = ReactiveCommand.Create(MoveRight);
-            ShootCommand = ReactiveCommand.Create(Shoot);
 
-            // Lógica assíncrona (caso necessário) pode ser adicionada usando await
             MoveLeftCommand.Subscribe(_ => MoveLeft());
             MoveRightCommand.Subscribe(_ => MoveRight());
-            ShootCommand.Subscribe(_ => Shoot());
             
             PlayerLifeObservable
                 .Subscribe(life =>
@@ -70,12 +68,6 @@ namespace SpaceInvadersMVVM.ViewModels
                 Player.X += PlayerSpeed;
             }
         }
-
-        private void Shoot()
-        {
-            
-        }
-        
         
         private void ShowGameOverScreen()
         {

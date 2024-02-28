@@ -35,7 +35,7 @@ namespace SpaceInvadersMVVM.Views
 
             if (app!.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                // Fechar a aplicação
+                // Fecha a aplicação
                 desktop.MainWindow!.Close();
             }
  

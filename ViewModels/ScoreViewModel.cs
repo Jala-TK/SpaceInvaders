@@ -21,12 +21,6 @@ namespace SpaceInvadersMVVM.ViewModels
             _lifeScore += points;
             this.RaisePropertyChanged(nameof(Score));
 
-            // //Primeira entrega..
-            // if (_lifeScore >= 500)
-            // {
-            //     ShowGameOverScreen();
-            // }
-
             // Verifica se a pontuação atingiu ou ultrapassou um múltiplo de 1000
             if (_lifeScore >= 1000 && Player.Life is < 6 and > 0)
             {
