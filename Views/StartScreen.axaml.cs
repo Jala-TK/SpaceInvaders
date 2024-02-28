@@ -11,7 +11,7 @@ namespace SpaceInvadersMVVM.Views
     public partial class StartScreen : UserControl
     {
         private MainWindowViewModel _viewModel;
-        public event EventHandler StartGameClicked;
+        public event EventHandler? StartGameClicked;
 
         public StartScreen(MainWindowViewModel viewModel)
         {
