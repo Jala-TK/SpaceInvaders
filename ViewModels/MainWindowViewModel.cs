@@ -31,7 +31,7 @@ namespace SpaceInvadersMVVM.ViewModels
         public MainWindowViewModel()
         {
             Player = new Player();
-            PlayerSpeed = 5.0;
+            PlayerSpeed = 8.0;
             Scores = LoadScoresFromCsv();
             // Configurar comandos
             MoveLeftCommand = ReactiveCommand.Create(MoveLeft);

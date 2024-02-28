@@ -34,13 +34,11 @@
                 <Image x:Name="Enemy3" IsVisible="False" Source="/Assets/Sprites/aliens/alien10pointV1.png"/>
                 <Image x:Name="Enemy3A" IsVisible="False" Source="/Assets/Sprites/aliens/alien10pointV2.png"/>
 
-
                 <Image x:Name="Shield" IsVisible="False" Source="/Assets/Sprites/shield/shield1.png"/>
                 <Image x:Name="Shield1" IsVisible="False" Source="/Assets/Sprites/shield/shield2.png"/>
                 <Image x:Name="Shield2" IsVisible="False" Source="/Assets/Sprites/shield/shield3.png"/>
                 <Image x:Name="Shield3" IsVisible="False" Source="/Assets/Sprites/shield/shield4.png"/>
                 <Image x:Name="Shield4" IsVisible="False" Source="/Assets/Sprites/shield/shield5.png"/>
-
                 
                 <Image x:Name="Bala" IsVisible="False" Source="/Assets/Sprites/bullet.gif"/>
         </Canvas>

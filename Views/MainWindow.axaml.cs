@@ -7,7 +7,6 @@ using Avalonia.Threading;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Avalonia.Data;
 using SpaceInvadersMVVM.Models;
 using SpaceInvadersMVVM.ViewModels;
@@ -20,8 +19,8 @@ public partial class MainWindow : Window
     private Canvas? _gameCanvas;
     private Player? _player;
     private Ufo _ufo = new();
-    private TextBlock _scoreTextBlock;
-    private TextBlock _playerLifeTextBlock;
+    private TextBlock _scoreTextBlock = null!;
+    private TextBlock _playerLifeTextBlock = null!;
     private bool _canShoot = true;
     private bool _gameOn;
     private bool _possibleStart;
@@ -41,19 +40,19 @@ public partial class MainWindow : Window
     private SoundFx _moveUfoSound;
     private DispatcherTimer? _enemyBulletTimer;
     public int AlienCount { get; private set; }
-    private MainWindowViewModel _viewModel;
-    private StartScreen _startScreen;
+    private MainWindowViewModel _viewModel = null!;
+    private StartScreen _startScreen = null!;
     public MainWindow()
     {
         InitializeComponent();
 #if DEBUG
         this.AttachDevTools();
 #endif
-        _explosionSound = new SoundFx("explosion.wav");
         _playerBulletSound = new SoundFx("1.wav");
         _enemyBulletSound = new SoundFx("3.wav");
-        _backgroundSound = new SoundFx("backgroundmusic.mpeg");
         _moveEnemiesSound = new SoundFx("6.wav");
+        _explosionSound = new SoundFx("explosion.wav");
+        _backgroundSound = new SoundFx("backgroundmusic.mpeg");
         _moveUfoSound = new SoundFx("ufo_lowpitch.wav");
         
         NewGame();
@@ -97,13 +96,12 @@ public partial class MainWindow : Window
 
     private void StartGame()
     {
-        _possibleStart = false;
-        _gameOn = true;
-
         ClearWindow();
 
         InitializeGameComponents();
-
+        _possibleStart = false;
+        _gameOn = true;
+        
         Content = _gameCanvas;
 
         _timer = new DispatcherTimer
@@ -125,14 +123,14 @@ public partial class MainWindow : Window
         // Ativar o OVNI a cada 2 minutos
         var activationTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(20)
+            Interval = TimeSpan.FromSeconds(120)
         };
         activationTimer.Tick += (_, _) =>
         {
-            if (!_gameOn)
-                return;
-
-            Dispatcher.UIThread.InvokeAsync(GenerateUfo);
+            if (_gameOn)
+            {
+                Dispatcher.UIThread.InvokeAsync(GenerateUfo);
+            }
         };
         activationTimer.Start();
     }
